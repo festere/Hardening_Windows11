@@ -40,9 +40,9 @@ echo Lancement du programme
 :: PowerShell
 ::#######################################################################
 ::#######################################################################
-powershell -file "Windows_Defender.ps1"
-powershell -file "Windows_Optimisator.ps1"
-powershell -file "Windows_Cleaner.ps1"
+powershell.exe -ExecutionPolicy Bypass -File "powershell -file "Windows_Defender.ps1"
+powershell.exe -ExecutionPolicy Bypass -File "execution.ps1"Windows_Optimisator.ps1"
+powershell.exe -ExecutionPolicy Bypass -File "execution.ps1"Windows_Cleaner.ps1"
 
 
 
