@@ -1,16 +1,3 @@
-![](https://img.shields.io/badge/hardening-red?style=for-the-badge)
-![](https://img.shields.io/badge/windows-blue?style=for-the-badge)
-
-<br>
-<br>
-
-| available | Version |
-|-----------|---------|
-|  &check;  |   1.0   |
-
-<br>
-<br>
-
 > __Note__ Fonctionnalité :
 
 1. Configuration des paramètres système
