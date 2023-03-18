@@ -5,7 +5,7 @@
 - [x] Windows Optimisation script
 - [x] Windows Cleaner script
 
-<br
+<br>
 <br>
 
 2. Configuration des paramètres système
