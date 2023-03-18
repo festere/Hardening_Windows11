@@ -1,17 +1,16 @@
 @echo off
 
-:: BatchGotAdmin
 :-------------------------------------
-REM  --> Check for permissions
+REM  :: Analyse les permissions
     IF "%PROCESSOR_ARCHITECTURE%" EQU "amd64" (
 >nul 2>&1 "%SYSTEMROOT%\SysWOW64\cacls.exe" "%SYSTEMROOT%\SysWOW64\config\system"
 ) ELSE (
 >nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
 )
 
-REM --> If error flag set, we do not have admin.
+REM :: Si une erreur est detecte les autorisations admin sertont refusées
 if '%errorlevel%' NEQ '0' (
-    echo Requesting administrative privileges...
+    echo Demande des droits administrateurs...
     goto UACPrompt
 ) else ( goto gotAdmin )
 
@@ -28,27 +27,24 @@ if '%errorlevel%' NEQ '0' (
     pushd "%CD%"
     CD /D "%~dp0"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @echo off
 setlocal
 :PROMPT
-SET /P AREYOUSURE=Etes vous sur de lancer le programme (Y/[N])?
+SET /P AREYOUSURE=Etes vous sur de lancer le programme (Y/[N])? 
 IF /I "%AREYOUSURE%" NEQ "Y" GOTO END
 
 echo Lancement du programme
+
+::#######################################################################
+::#######################################################################
+:: PowerShell
+::#######################################################################
+::#######################################################################
+powershell -file "Windows_Defender.ps1"
+powershell -file "Windows_Optimisator.ps1"
+powershell -file "Windows_Cleaner.ps1"
+
+
 
 ::#######################################################################
 ::#######################################################################
@@ -753,14 +749,6 @@ wmic /interactive:off product where "name like 'ShopAtHome%' and version like'%'
 ::
 :: Prevent unauthenticated RPC connections
 :: reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Rpc" /v RestrictRemoteClients /t REG_DWORD /d 1 /f
-::#######################################################################
-::#######################################################################
-:: PowerShell
-::#######################################################################
-::#######################################################################
-powershell -file "Windows_Defender.ps1"
-powershell -file "Windows_Optimisator.ps1"
-powershell -file "Windows_Cleaner.ps1"
 echo Programme terminé
 :END
 pause
