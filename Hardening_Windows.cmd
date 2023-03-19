@@ -749,6 +749,6 @@ wmic /interactive:off product where "name like 'ShopAtHome%' and version like'%'
 ::
 :: Prevent unauthenticated RPC connections
 :: reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Rpc" /v RestrictRemoteClients /t REG_DWORD /d 1 /f
-echo Programme terminé
+echo Programme termine
 :END
 pause

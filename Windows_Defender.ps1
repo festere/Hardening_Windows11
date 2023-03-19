@@ -1,10 +1,21 @@
-$ErrorActionPreference = 'silentlycontinue'
-
-#Require elivation for script run
-#Requires -RunAsAdministrator
-
-Write-Output "Elevating priviledges for this process"
+#Elevation des priviledges
+Write-Output "Elevation des priviledges..."
 do {} until (Elevate-Privileges SeTakeOwnershipPrivilege)
+
+
+#Nom de la fenetre
+$Host.UI.RawUI.WindowTitle = "Windows_Defender $([char]0x00A9)" 
+vssadmin delete shadows /all /quiet | Out-Null
+
+
+#Creation d'un point de restauration
+Write-Host "Creation d'un point de restauration..."
+New-ItemProperty -Path "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemRestore" -Name "SystemRestorePointCreationFrequency" -Type "DWORD" -Value 0 -Force
+Checkpoint-Computer -Description "Windows_Defender" -RestorePointType MODIFY_SETTINGS
+Write-Host "Point de restauration créé avec succès !" -ForegroundColor Green
+
+
+Write-Host "Le parametrage de Windows Defender commence..."
 
 #Set Directory to PSScriptRoot
 if ((Get-Location).Path -NE $PSScriptRoot) { Set-Location $PSScriptRoot }
@@ -115,10 +126,10 @@ Set-MpPreference -RandomizeScheduleTaskTimes $true
 
 Write-Host "Disabling Account Prompts"
 # Dismiss Microsoft Defender offer in the Windows Security about signing in Microsoft account
-If (!(Test-Path -Path "HKCU:\SOFTWARE\Microsoft\Windows Security Health\State\AccountProtection_MicrosoftAccount_Disconnected")) {
-    New-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows Security Health\State" -Name "AccountProtection_MicrosoftAccount_Disconnected" -PropertyType "DWORD" -Value "1" -Force
+If (!(Test-Path -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Security Health\State\AccountProtection_MicrosoftAccount_Disconnected")) {
+    New-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Security Health\State" -Name "AccountProtection_MicrosoftAccount_Disconnected" -PropertyType "DWORD" -Value "1" -Force
 }Else {
-    New-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows Security Health\State" -Name "AccountProtection_MicrosoftAccount_Disconnected" -PropertyType "DWORD" -Value "1" -Force
+    New-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Security Health\State" -Name "AccountProtection_MicrosoftAccount_Disconnected" -PropertyType "DWORD" -Value "1" -Force
 }
 
 Write-Host "Enabling Cloud-delivered Protections"
