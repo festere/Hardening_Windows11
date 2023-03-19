@@ -1,9 +1,7 @@
 > __Note__ Fonctionnalité :
 
 1. PowerShell
-- [x] Windows Defender script
-- [x] Windows Optimisation script
-- [x] Windows Cleaner script
+- [x] Windows Script
 
 <br>
 <br>
