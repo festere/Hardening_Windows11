@@ -96,12 +96,9 @@ Set-MpPreference -EnableFileHashComputation $true
 #Enable Intrusion Prevention System
 Write-Host " -Enabling Intrusion Prevention System"
 Set-MpPreference -DisableIntrusionPreventionSystem $false
-#Enable SSH Parcing
-Write-Host " -Enabling SSH Parsing"
-Set-MpPreference -DisableSshParsing $false
 #Enable TLS Parcing
 Write-Host " -Enabling TLS Parsing"
-Set-MpPreference -DisableSshParsing $false
+Set-MpPreference -DisableTlsParsing $false
 #Enable SSH Parcing
 Write-Host " -Enabling SSH Parsing"
 Set-MpPreference -DisableSshParsing $false
@@ -221,7 +218,7 @@ function Checks{
 }
 
 function WindowsTweaks_Services {
-    $services = @(
+    $servicesDisable = @(
     "WpcMonSvc",
     "SharedRealitySvc",
     "Fax",
@@ -252,13 +249,59 @@ function WindowsTweaks_Services {
     "WerSvc",
     "wercplsupport",
 
+    "wlidsvc",
+    "NcdAutoSetup",
+    "DataCollectionPublishingService",
+    "SSDPSRV",
+    "dmwapphushservice",
+    "DiagTrack",
+    "Browser",
+    "HomeGroupProvider",
+    "p2pimsvc",
+    "XblAuthManager",
+    "RasAuto",
+    "RasMan",
+    "p2psvc",
+    "upnphost",
+    "fdPHost",
+    "XblGameSave",
+    "ltdsvc",
+    "SharedAccess",
+    "PNRPsvc",
+    "FDResPub",
+    "RemoteRegistry",
+    "RemoteAccess",
+    "WlanSvc",
+    "WwanSvc",
+    "WinHttpAutoProxySvc",
+    "retaildemo",
+    "lfsvc",
+    "blthserv",
+    "AJRouter",
+    "WMPNetworkSvc",
+    "WSService",
+    "wcncsvc",
+
     "Spouleur d'impresssion",
     "ClickToRunSvc",
     "OneSyncSvc_184354",
     "MapsBroker")
-    foreach ($service in $services){
-    Stop-Service $service
-    Set-Service $service -StartupType Disabled}
+    foreach ($serviceDisable in $servicesDisable){
+        Stop-Service $serviceDisable
+        Set-Service $serviceDisable -StartupType Disabled
+    }
+
+    $servicesEnable = @(
+        "AppIDSvc",
+        "gpsvc",
+        "EventLog",
+        "Netlogon",
+        "MpsSvc")
+    foreach ($serviceEnable in $servicesEnable){
+        Set-Service $serviceEnable -StartupType Enable
+    }
+
+    reg set "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appointments" 
 }
 
 function WindowsTweaks_Registry{
@@ -298,8 +341,21 @@ function WindowsTweaks_Tasks{
     Get-ScheduledTask -TaskName DmClient | Disable-ScheduledTask -ErrorAction SilentlyContinue
     Get-ScheduledTask -TaskName DmClientOnScenarioDownload | Disable-ScheduledTask -ErrorAction SilentlyContinue
     Get-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" | Disable-ScheduledTask -ErrorAction SilentlyContinue
-    schtasks /change /TN "Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser" /DISABLE 
-    schtasks /change /TN "Microsoft\Windows\Application Experience\StartupAppTask" /DISABLE 
+    schtasks /change /TN "Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser" /DISABLE
+    schtasks /change /TN "Microsoft\Windows\Application Experience\StartupAppTask" /DISABLE
+
+    schtasks /change /TN "Microsoft\Windows\Autochk\Proxy" /DISABLE
+
+    schtasks /change /TN "Microsoft\Windows\Customer Experience Improvement Program\Consolidator" /DISABLE
+    schtasks /change /TN "Microsoft\Windows\Customer Experience Improvement Program\KernelCeipTask" /DISABLE
+    schtasks /change /TN "Microsoft\Windows\Customer Experience Improvement Program\Uploader" /DISABLE
+    schtasks /change /TN "Microsoft\Windows\Customer Experience Improvement Program\UsbCeip" /DISABLE
+
+    schtasks /change /TN "Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnoticDataCollector" /DISABLE
+
+    schtasks /change /TN "Microsoft\Windows\Feedback\Siuf\DmClient" /DISABLE
+
+    schtasks /change /TN "Microsoft\Windows\WPD\SqmUpload_S-1-5-21-3244633361-4016055161-2943779436-1000" /DISABLE
 }
 
 function WindowsTweaks_Features{
@@ -401,6 +457,44 @@ function Process_Lasso{
     Start-Process -FilePath "$env:temp\ProcesslassoSetup64.exe" -ArgumentList "/S /language=French"
 }
 
+function ApplicationDisabling {
+    reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\explorer" /f
+    reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\explorer" /f /v DisallowRun /t REG_DWORD /d 1
+    reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\explorer\DisallowRun" /f
+
+    $ApplicationsDisabling = @(
+        "windows store.exe",
+        "bing.exe",
+        "messages.exe",
+        "solitaire collection.exe",
+        "contacts.exe",
+        "skype.exe",
+        "xbox.exe"
+    )
+    foreach ($ApplicationDisabling in $ApplicationsDisabling){
+        reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\explorer\DisallowRun" /v $ApplicationDisabling /t REG_SZ /d $ApplicationDisabling /f
+    }
+}
+
+function ServiceAllow {
+    reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\explorer" /f
+    reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\explorer" /f /v DisallowRun /t REG_DWORD /d 1
+    reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\explorer\DisallowRun" /f
+
+    $ServicesAllow = @(
+        "appointments",
+        "phoneCallHistory"
+        "contacts",
+        "email",
+        "location",
+        "chat",
+        "userAccountInformation"
+    )
+    foreach ($ServiceAllow in $ServicesAllow){
+        Set-ItemProperty -Path Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\$ServiceAllow -Name Value -Value Allow
+    }
+}
+
 Checks
 WindowsTweaks_Services
 WindowsTweaks_Registry
@@ -414,6 +508,8 @@ Autoruns
 WindowsCleanup
 Runtime
 Process_Lasso
+ApplicationDisabling
+ServiceAllow
 
 ##############################################################################################################
 # Nettoyage du système
@@ -437,28 +533,37 @@ Dism.exe /Online /Cleanup-Image /StartComponentCleanup /NoRestart
 Clear-BCCache -Force -ErrorAction SilentlyContinue
 
 $paths = @(
-"$env:temp",
-"$env:windir\Temp",
-"$env:windir\Prefetch",
-"$env:SystemRoot\SoftwareDistribution\Download",
-"$env:ProgramData\Microsoft\Windows\RetailDemo",
-"$env:LOCALAPPDATA\AMD",
-"$env:windir/../AMD/",
-"$env:LOCALAPPDATA\NVIDIA\DXCache",
-"$env:LOCALAPPDATA\NVIDIA\GLCache",
-"$env:APPDATA\..\locallow\Intel\ShaderCache",
-"$env:LOCALAPPDATA\CrashDumps",
-"$env:APPDATA\..\locallow\AMD",
-"$env:windir\..\MSOCache")
-foreach ($path in $paths) {
-    Get-ChildItem -Path $path -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse
-}
+    "$env:temp",
+    "$env:windir\Temp",
+    "$env:windir\Prefetch",
+    "$env:SystemRoot\SoftwareDistribution\Download",
+    "$env:ProgramData\Microsoft\Windows\RetailDemo",
+    "$env:LOCALAPPDATA\AMD",
+    "$env:windir/../AMD/",
+    "$env:LOCALAPPDATA\NVIDIA\DXCache",
+    "$env:LOCALAPPDATA\NVIDIA\GLCache",
+    "$env:APPDATA\..\locallow\Intel\ShaderCache",
+    "$env:LOCALAPPDATA\CrashDumps",
+    "$env:APPDATA\..\locallow\AMD",
+    "$env:windir\..\MSOCache")
+    foreach ($path in $paths) {
+        Get-ChildItem -Path $path -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse
+    }
 lodctr /r
 lodctr /r
-
 
 Start-Process cleanmgr.exe /sagerun:1 -Wait
 Write-Warning "Le system a été nettoyé avec succès !" -ForegroundColor Green
+
+
+
+
+
+
+
+
+
+
 
 function Reboot{
     Write-Warning "Le system a été optimisé avec succès et vas redemarer dans 20 secondes!" -ForegroundColor Green
