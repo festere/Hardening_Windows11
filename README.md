@@ -1,12 +1,8 @@
 > __Note__ Fonctionnalité :
 
-1. PowerShell
-- [x] Windows Script
-
-<br>
 <br>
 
-2. Configuration des paramètres système
+1. Configuration des paramètres système
 - [x] Activation et configuration des paramètres system
 - [x] Paramétrage de Windows Update
 - [x] Paramétrage de l'accès à distance
@@ -25,7 +21,7 @@
 <br>
 <br>
 
-3. Configuration de moteurs de recherche
+2. Configuration de moteurs de recherche
 - [x] Internet Explorer
 - [x] Edge
 - [x] Google Chrome
@@ -33,15 +29,21 @@
 <br>
 <br>
 
-4. Configuration des applications
+3. Configuration des applications
 - [x] Activation et configuration des paramètres de securité de Microsoft Office
 - [x] Configuration de Adobe Reader
 
 <br>
 <br>
 
-5. Configuration suplémentaire
+4. Configuration suplémentaire
 - [x] Commandes pour désinstaller les applications préinstallé
+
+<br>
+<br>
+
+5. PowerShell
+- [x] Windows Script pour ajuster les optimisation, renforcer Windows Defender et nettoyer le systeme
 
 <br>
 <br>
