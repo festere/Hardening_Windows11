@@ -190,9 +190,7 @@ Write-Host "Enabling... Windows Defender Group Policy Settings"
 
 Write-Host "Updating Signatures..."
 #Update Signatures
-# cd $env:programfiles"\Windows Defender"
-# .\MpCmdRun.exe -removedefinitions -dynamicsignatures
-# .\MpCmdRun.exe -SignatureUpdate
+.\MpCmdRun.exe -SignatureUpdate
 Update-MpSignature -UpdateSource MicrosoftUpdateServer
 Update-MpSignature -UpdateSource MMPC
 
