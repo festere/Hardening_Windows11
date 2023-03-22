@@ -127,9 +127,6 @@ Set-MpPreference -CloudExtendedTimeout 50
 #Schedule signature updates every 8 hours
 Write-Host " -Scheduling signature updates every 8 hours"
 Set-MpPreference -SignatureUpdateInterval 8
-#Randomize Scheduled Task Times
-Write-Host " -Randomizing Scheduled Task Times"
-Set-MpPreference -RandomizeScheduleTaskTimes $true
 
 Write-Host "Disabling Account Prompts"
 # Dismiss Microsoft Defender offer in the Windows Security about signing in Microsoft account
@@ -474,6 +471,43 @@ function ApplicationDisabling {
     foreach ($ApplicationDisabling in $ApplicationsDisabling){
         reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\explorer\DisallowRun" /v $ApplicationDisabling /t REG_SZ /d $ApplicationDisabling /f
     }
+    Get-AppxPackage *Microsoft.BingWeather* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *Microsoft.GetHelp* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *Microsoft.Getstarted* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *Microsoft.Messaging* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *Microsoft.OneConnect* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *Microsoft.Print3D* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *Microsoft.SkypeApp* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *Microsoft.Wallet* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *microsoft.windowscommunicationsapps* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *Microsoft.WindowsFeedbackHub* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *Microsoft.WindowsSoundRecorder* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *Microsoft.YourPhone* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *Microsoft.WindowsFeedback* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *Windows.ContactSupport* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *PandoraMedia* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *AdobeSystemIncorporated. AdobePhotoshop* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *Duolingo* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *Microsoft.BingNews* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *Microsoft.Advertising.Xaml* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *ActiproSoftware* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *EclipseManager* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *SpotifyAB.SpotifyMusic* -AllUsers | Remove-AppxPackage
+    Get-AppxPackage *king.com.* -AllUsers | Remove-AppxPackage
+    Get-AppxProvisionedPackage -Online | Where-Object {$_.DisplayName -eq 'Microsoft.BingWeather'} | Remove-AppxProvisionedPackage -Online
+    Get-AppxProvisionedPackage -Online | Where-Object {$_.DisplayName -eq 'Microsoft.GetHelp'} | Remove-AppxProvisionedPackage -Online
+    Get-AppxProvisionedPackage -Online | Where-Object {$_.DisplayName -eq 'Microsoft.Getstarted'} | Remove-AppxProvisionedPackage -Online
+    Get-AppxProvisionedPackage -Online | Where-Object {$_.DisplayName -eq 'Microsoft.SkypeApp'} | Remove-AppxProvisionedPackage -Online
+    Get-AppxProvisionedPackage -Online | Where-Object {$_.DisplayName -eq 'microsoft.windowscommunicationsapps'} | Remove-AppxProvisionedPackage -Online
+    Get-AppxProvisionedPackage -Online | Where-Object {$_.DisplayName -eq 'Microsoft.WindowsFeedbackHub'} | Remove-AppxProvisionedPackage -Online
+    Get-AppxProvisionedPackage -Online | Where-Object {$_.DisplayName -eq 'Microsoft.YourPhone'} | Remove-AppxProvisionedPackage -Online
+    wmic /interactive:off product where "name like 'Adobe Air%' and version like'%'" call uninstall
+    wmic /interactive:off product where "name like 'Adobe Flash%' and version like'%'" call uninstall
+    wmic /interactive:off product where "name like 'Java%' and version like'%'" call uninstall
+    wmic /interactive:off product where "name like 'Ask Part%' and version like'%'" call uninstall
+    wmic /interactive:off product where "name like 'searchAssistant%' and version like'%'" call uninstall
+    wmic /interactive:off product where "name like 'Weatherbug%' and version like'%'" call uninstall
+    wmic /interactive:off product where "name like 'ShopAtHome%' and version like'%'" call uninstall
 }
 
 function ServiceAllow {
@@ -855,6 +889,13 @@ function TLS_SSLTweak{
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3\Client" -Name DisabledByDefault -Value 0
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3\Server" -Name Enabled -Value 1
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3\Server" -Name DisabledByDefault -Value 0
+
+    # OCSP stapling
+    reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL" /v EnableOcspStaplingForSni /t REG_DWORD /d 1 /f
+    # Activation de l'authentification forte pour .NET Framework 3.5
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\.NETFramework\v2.0.50727" /v SchUseStrongCrypto /t REG_DWORD /d 1 /f
+    # Activation de l'authentification forte pour .NET Framework 4.0/4.5.x
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\.NETFramework\v4.0.30319" /v SchUseStrongCrypto /t REG_DWORD /d 1 /f
     
     # Empecher l’activation du diaporama de l’ecran de verrouillage
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\Personalization" /f
@@ -1151,6 +1192,85 @@ function GoogleChromeTweaks {
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v AllowOutdatedPlugins /d "0" /t REG_DWORD /f >NUL 2>&1
     # Autorise les sites autorisé à faire des notifications
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v DefaultNotificationsSetting /d "2" /t REG_DWORD /f >NUL 2>&1
+
+    # Agrandissement de la taille des logs dans Windows Event
+    wevtutil sl Security /ms:1024000
+    wevtutil sl Application /ms:1024000
+    wevtutil sl System /ms:1024000
+    wevtutil sl "Windows Powershell" /ms:1024000
+    wevtutil sl "Microsoft-Windows-PowerShell/Operational" /ms:1024000
+
+    # Enregistre les données des lignes de commandes dans le registre (eventid 4688)
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Audit" /v ProcessCreationIncludeCmdLine_Enabled /t REG_DWORD /d 1 /f
+
+    # Active les paramètres avancé
+    reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa" /v SCENoApplyLegacyAuditPolicy /t REG_DWORD /d 1 /f
+
+    # Active la connection au PowerShell
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ModuleLogging" /v EnableModuleLogging /t REG_DWORD /d 1 /f
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" /v EnableScriptBlockLogging /t REG_DWORD /d 1 /f
+
+    # Active les détails des logs
+    Auditpol /set /subcategory:"Security Group Management" /success:enable /failure:enable
+    Auditpol /set /subcategory:"Process Creation" /success:enable /failure:enable
+    Auditpol /set /subcategory:"Logoff" /success:enable /failure:disable
+    Auditpol /set /subcategory:"Logon" /success:enable /failure:enable 
+    Auditpol /set /subcategory:"Filtering Platform Connection" /success:enable /failure:disable
+    Auditpol /set /subcategory:"Removable Storage" /success:enable /failure:enable
+    Auditpol /set /subcategory:"SAM" /success:disable /failure:disable
+    Auditpol /set /subcategory:"Filtering Platform Policy Change" /success:disable /failure:disable
+    Auditpol /set /subcategory:"IPsec Driver" /success:enable /failure:enable
+    Auditpol /set /subcategory:"Security State Change" /success:enable /failure:enable
+    Auditpol /set /subcategory:"Security System Extension" /success:enable /failure:enable
+    Auditpol /set /subcategory:"System Integrity" /success:enable /failure:enable
+
+    # Applique des limitations à Windows Analytics si activé
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v LimitEnhancedDiagnosticDataWindowsAnalytics /t REG_DWORD /d 1 /f
+
+    # Applique la telemetrie de Windows uniquement en mode securité
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v MaxTelemetryAllowed /t REG_DWORD /d 1 /f
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Diagnostics\DiagTrack" /v ShowedToastAtLevel /t REG_DWORD /d 1 /f
+
+    # Desactiver ma localisation des données
+    reg add "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore" /v Location /t REG_SZ /d Deny /f
+
+    # Empecher le menue démarrer de fournir des informations d'internet et d'utilisiser la geolocalisation
+    reg add "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Search" /v BingSearchEnabled /t REG_DWORD /d 0 /f
+    reg add "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Search" /v AllowSearchToUseLocation /t REG_DWORD /d 0 /f
+    reg add "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Search" /v CortanaConsent /t REG_DWORD /d 0 /f
+
+    # Désactiver la publication de l'activité de l'utilisateur
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" /v PublishUserActivities /t REG_DWORD /d 1 /f
+
+    # Désactiver la syncronisation au cloud
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\SettingSync" /v DisableSettingSync /t REG_DWORD /d 2 /f
+
+    # Désactiver les pubs à ID
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" /v DisabledByGroupPolicy /t REG_DWORD /d 1 /f
+
+    # Désactiver Windows GameDVR
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\GameDVR" /v AllowGameDVR /t REG_DWORD /d 0 /f
+
+    # Désactiver l'experience Microsoft consumer pour empêcher les notifications et sugestion d'applications à installer
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v DisableWindowsConsumerFeatures /t REG_DWORD /d 1 /f
+    reg add "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SystemPaneSuggestionsEnabled /t REG_DWORD /d 0 /f
+    reg add "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SilentInstalledAppsEnabled /t REG_DWORD /d 0 /f
+    reg add "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v PreInstalledAppsEnabled /t REG_DWORD /d 0 /f
+    reg add "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v OemPreInstalledAppsEnabled /t REG_DWORD /d 0 /f
+
+    # Désactiver l'accès des sites web à la liste des langages
+    reg add "HKEY_USERS\Control Panel\International\User Profile" /v HttpAcceptLanguageOptOut /t REG_DWORD /d 1 /f
+
+    # Interdire les notifications sur l'écran de verouillage
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications" /v NoToastApplicationNotificationOnLockScreen /t REG_DWORD /d 1 /f
+
+    # Activation de l'anti-usurpation pour la reconnaissance faciale
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Biometrics\FacialFeatures" /v EnhancedAntiSpoofing /t REG_DWORD /d 1 /f
+    # Desactivation des autres camera quand l'écran est fermé
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Personalization" /v NoLockScreenCamera /t REG_DWORD /d 1 /f
+    # Empèche les applications Windows de reconnaissance vocale quand l'écran est fermé
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy" /v LetAppsActivateWithVoiceAboveLock /t REG_DWORD /d 2 /f
 }
 
 function FirewallTweaks {
