@@ -560,19 +560,19 @@ function TLS_SSLTweak{
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WinRM\Service" -Name DisableRunAs -Value 1
 
     # Autoriser l'authentification Kerberos
-    reg add "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Citrix\ICA Client\Engine\Lockdown Profiles\All Regions\Lockdown\Logon\Kerberos" /f
+    reg add "HKEY_LOCAL_MACHINE\Software\Policies\Citrix\ICA Client\Engine\Lockdown Profiles\All Regions\Lockdown\Logon\Kerberos" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Citrix\ICA Client\Engine\Lockdown Profiles\All Regions\Lockdown\Logon\Kerberos" -Name SSPIEnabled /t REG_SZ -Value true
 
     # Desactiver l'authentification CredSSP
-    reg add "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WinRM\Client" /f
+    reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WinRM\Client" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WinRM\Client" -Name AllowCredSSP -Value 0
 
     # Generer des audits de sécurite
-    reg add "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit" /f
+    reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit" -Name ProcessCreationIncludeCmdLine_Enabled -Value 1
 
     # Desactiver la mise à jour automatique des certificats racines
-    reg add "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\SystemCertificates\AuthRoot" /f
+    reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\SystemCertificates\AuthRoot" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\SystemCertificates\AuthRoot" -Name DisableRootAutoUpdate -Value 1
 
     # Desactiver les liens « Events.asp » de l'observateur d'événements
@@ -692,13 +692,13 @@ function TLS_SSLTweak{
     Set-ItemProperty -Path "Registry::HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" -Name DisablePasswordSaving -Value 1
 
     # Ne pas autoriser la redirection de lecteur
-    Set-ItemProperty -Path "Registry::SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" -Name fDisableCdm -Value 1
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" -Name fDisableCdm -Value 1
 
     # Toujours demander le mot de passe à la connexion
-    Set-ItemProperty -Path "Registry::SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" -Name fPromptForPassword -Value 1
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" -Name fPromptForPassword -Value 1
 
     # Requérir des communications RPC sécurisées
-    Set-ItemProperty -Path "Registry::SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" -Name fEncryptRPCTraffic -Value 1
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" -Name fEncryptRPCTraffic -Value 1
 
     # Définir le comportement par défaut du programme Autorun
     reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /f
@@ -978,7 +978,7 @@ function TLS_SSLTweak{
 
     # Ne pas afficher l'animation à la première connexion
     reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System" /f
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name EnableFirstLogonAnimation -Value
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name EnableFirstLogonAnimation -Value 0
 
     # Ne pas afficher l'interface utilisateur de sélection de réseau
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\System" /f
@@ -1136,12 +1136,6 @@ function GoogleChromeTweaks {
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome\URLBlacklist" /v "1" /t REG_SZ /d "javascript://*" /f
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Update" /v "AutoUpdateCheckPeriodMinutes" /t REG_DWORD /d "1613168640" /f
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome\Recommended" /v "SafeBrowsingProtectionLevel" /t REG_DWORD /d "2" /f
-    # Désactive la syncronisation des données avec Google
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v SyncDisabled /d "1" /t REG_DWORD /f >NUL 2>&1
-    # Désactive l'import de mot de passe sauvegardé
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v ImportSavedPasswords /d "0" /t REG_DWORD /f >NUL 2>&1
-    # Désactive l'envoie de documents à Google Cloud Print
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v CloudPrintSubmitEnabled /d "0" /t REG_DWORD /f >NUL 2>&1
     # Désactive le proxy de Google Cloud Print
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v CloudPrintProxyEnabled /d "0" /t REG_DWORD /f >NUL 2>&1
     # Active l'isolation pour chaque sites
@@ -1152,8 +1146,6 @@ function GoogleChromeTweaks {
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v BackgroundModeEnabled /d "0" /t REG_DWORD /f >NUL 2>&1
     # Désactive les plugins trop vieux
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v AllowOutdatedPlugins /d "0" /t REG_DWORD /f >NUL 2>&1
-    # Autorise les sites autorisé à faire des notifications
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v DefaultNotificationsSetting /d "2" /t REG_DWORD /f >NUL 2>&1
 
     # Agrandissement de la taille des logs dans Windows Event
     wevtutil sl Security /ms:1024000
@@ -1327,24 +1319,6 @@ function FirewallTweaks {
     netsh advfirewall firewall add rule name="block_WSearch_out" dir=out service="WSearch" action=block enable=yes
 }
 
-WindowsTweaks
-WindowsTweaks_Services
-WindowsTweaks_Registry
-WindowsTweaks_Tasks
-WindowsTweaks_Features
-WindowsTweaks_Index
-SophiaScript
-ooShutup
-WindowsCleanup
-Runtime
-ApplicationDisabling
-ServiceAllow
-TLS_SSLTweak
-MicrosoftOfficeTweaks
-AdobeTweaks
-GoogleChromeTweaks
-FirewallTweaks
-
 ##############################################################################################################
 # Nettoyage du système
 ##############################################################################################################
@@ -1387,10 +1361,28 @@ lodctr /r
 lodctr /r
 
 Start-Process cleanmgr.exe /sagerun:1 -Wait
-Write-Warning "Le system a été nettoyé avec succès !" -ForegroundColor Green
+Write-Host "Le system a été nettoyé avec succès !" -ForegroundColor Green
+
+WindowsTweaks
+WindowsTweaks_Services
+WindowsTweaks_Registry
+WindowsTweaks_Tasks
+WindowsTweaks_Features
+WindowsTweaks_Index
+SophiaScript
+ooShutup
+WindowsCleanup
+Runtime
+ApplicationDisabling
+ServiceAllow
+TLS_SSLTweak
+MicrosoftOfficeTweaks
+AdobeTweaks
+GoogleChromeTweaks
+FirewallTweaks
 
 function Reboot{
-    Write-Warning "Le system a été optimisé avec succès et vas redemarer dans 20 secondes!" -ForegroundColor Green
+    Write-Host "Le system a été optimisé avec succès et vas redemarer dans 20 secondes!" -ForegroundColor Green
     Start-Sleep 20
     Restart-Computer
 }
