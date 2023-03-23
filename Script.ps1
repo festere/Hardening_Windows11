@@ -228,13 +228,19 @@ function WindowsTweaks_Services {
     "WSService",
     "wcncsvc",
 
-    "Spouleur d'impresssion",
     "ClickToRunSvc",
     "OneSyncSvc_184354",
     "MapsBroker")
     foreach ($serviceDisable in $servicesDisable){
+        $StopService = Get-Service -Name $serviceDisable
+
+        if ($StopService.Status -ne 'Running'){
         Stop-Service $serviceDisable
         Set-Service $serviceDisable -StartupType Disabled
+        }
+        else{
+            Write-Host "Le service $serviceDisable est deja desactive"
+        }
     }
 
     $servicesEnable = @(
@@ -244,10 +250,15 @@ function WindowsTweaks_Services {
         "Netlogon",
         "MpsSvc")
     foreach ($serviceEnable in $servicesEnable){
-        Set-Service $serviceEnable -StartupType Enable
-    }
+        $StartService = Get-Service -Name $serviceEnable
 
-    reg set "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appointments" 
+        if ($StartService.Status -ne 'Stopped'){
+        Set-Service $serviceEnable -StartupType Automatic
+        }
+        else{
+            Write-Host "Le service $serviceDisable est deja active"
+        }
+    }
 }
 
 function WindowsTweaks{
@@ -357,26 +368,6 @@ function WindowsTweaks_Index{
     foreach ($drive in $drives) {
         Get-WmiObject -Class Win32_Volume -Filter "DriveLetter='$drive'" | Set-WmiInstance -Arguments @{IndexingEnabled=$False} | Out-Null
     }
-}
-
-function TakeOwnership{
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shell\TakeOwnership" -force -ea SilentlyContinue
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shell\TakeOwnership\command" -force -ea SilentlyContinue
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Directory\shell\TakeOwnership" -force -ea SilentlyContinue
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Directory\shell\TakeOwnership\command" -force -ea SilentlyContinue
-    New-ItemProperty -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shell\TakeOwnership' -Name '(default)' -Value 'Take Ownership' -PropertyType String -Force| -ea SilentlyContinue;
-    New-ItemProperty -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shell\TakeOwnership' -Name 'HasLUAShield' -Value '' -PropertyType String -Force -ea SilentlyContinue;
-    New-ItemProperty -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shell\TakeOwnership' -Name 'NoWorkingDirectory' -Value '' -PropertyType String -Force -ea SilentlyContinue;
-    New-ItemProperty -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shell\TakeOwnership' -Name 'Position' -Value 'middle' -PropertyType String -Force -ea SilentlyContinue;
-    New-ItemProperty -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shell\TakeOwnership\command' -Name '(default)' -Value 'powershell -windowstyle hidden -command "Start-Process cmd -ArgumentList ''/c takeown /f \"%1\" && icacls \"%1\" /grant *S-1-3-4:F /c /l'' -Verb runAs' -PropertyType String -Force -ea SilentlyContinue;
-    New-ItemProperty -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shell\TakeOwnership\command' -Name 'IsolatedCommand' -Value 'powershell -windowstyle hidden -command "Start-Process cmd -ArgumentList ''/c takeown /f \"%1\" && icacls \"%1\" /grant *S-1-3-4:F /c /l'' -Verb runAs' -PropertyType String -Force -ea SilentlyContinue;
-    New-ItemProperty -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Directory\shell\TakeOwnership' -Name '(default)' -Value 'Take Ownership' -PropertyType String -Force -ea SilentlyContinue;
-    New-ItemProperty -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Directory\shell\TakeOwnership' -Name 'AppliesTo' -Value 'NOT (System.ItemPathDisplay:="C:\Users" OR System.ItemPathDisplay:="C:\ProgramData" OR System.ItemPathDisplay:="C:\Windows" OR System.ItemPathDisplay:="C:\Windows\System32" OR System.ItemPathDisplay:="C:\Program Files" OR System.ItemPathDisplay:="C:\Program Files (x86)")' -PropertyType String -Force -ea SilentlyContinue;
-    New-ItemProperty -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Directory\shell\TakeOwnership' -Name 'HasLUAShield' -Value '' -PropertyType String -Force -ea SilentlyContinue;
-    New-ItemProperty -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Directory\shell\TakeOwnership' -Name 'NoWorkingDirectory' -Value '' -PropertyType String -Force -ea SilentlyContinue;
-    New-ItemProperty -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Directory\shell\TakeOwnership' -Name 'Position' -Value 'middle' -PropertyType String -Force -ea SilentlyContinue;
-    New-ItemProperty -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Directory\shell\TakeOwnership\command' -Name '(default)' -Value 'powershell -windowstyle hidden -command "Start-Process cmd -ArgumentList ''/c takeown /f \"%1\" /r /d y && icacls \"%1\" /grant *S-1-3-4:F /c /l /q'' -Verb runAs' -PropertyType String -Force -ea SilentlyContinue;
-    New-ItemProperty -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Directory\shell\TakeOwnership\command' -Name 'IsolatedCommand' -Value 'powershell -windowstyle hidden -command "Start-Process cmd -ArgumentList ''/c takeown /f \"%1\" /r /d y && icacls \"%1\" /grant *S-1-3-4:F /c /l /q'' -Verb runAs' -PropertyType String -Force -ea SilentlyContinue;
 }
                 
 function SophiaScript{
@@ -1342,7 +1333,6 @@ WindowsTweaks_Registry
 WindowsTweaks_Tasks
 WindowsTweaks_Features
 WindowsTweaks_Index
-TakeOwnership
 SophiaScript
 ooShutup
 WindowsCleanup
