@@ -52,8 +52,5 @@
 
 > __Warning__ <ins>Checksum:</ins>
 
-<span> $\textcolor{red}{\textsf{HardeningWindows.cmd}}$ </span> = SHA512: <code>61c72d1f9ca94840dd6784d777e484d744081b8b3e9f77304ced93982a9cf85a6aa15b1c5ec313d08772a67bae1cd8ccf45fc1033229649c06eb8333c8ea9db2</code>
-
-<br>
-
-<span> $\textcolor{red}{\textsf{WindowsCleaner.ps1}}$ </sapn> = SHA512: <code>61c72d1f9ca94840dd6784d777e484d744081b8b3e9f77304ced93982a9cf85a6aa15b1c5ec313d08772a67bae1cd8ccf45fc1033229649c06eb8333c8ea9db2</code>
+<span> $\textcolor{red}{\textsf{Hardening_Windows11}}$ </span> = SHA256:
+<code>FAEE3679B1DFA105A7CFE4670CEEE1E467BA115FA20F84BEC4BAAFF1150BA406</code>
