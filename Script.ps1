@@ -360,10 +360,10 @@ function WindowsTweaks_Index{
 }
 
 function TakeOwnership{
-    New-Item "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shell\TakeOwnership" -force -ea SilentlyContinue
-    New-Item "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shell\TakeOwnership\command" -force -ea SilentlyContinue
-    New-Item "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Directory\shell\TakeOwnership" -force -ea SilentlyContinue
-    New-Item "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Directory\shell\TakeOwnership\command" -force -ea SilentlyContinue
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shell\TakeOwnership" -force -ea SilentlyContinue
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shell\TakeOwnership\command" -force -ea SilentlyContinue
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Directory\shell\TakeOwnership" -force -ea SilentlyContinue
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\Directory\shell\TakeOwnership\command" -force -ea SilentlyContinue
     New-ItemProperty -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shell\TakeOwnership' -Name '(default)' -Value 'Take Ownership' -PropertyType String -Force| -ea SilentlyContinue;
     New-ItemProperty -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shell\TakeOwnership' -Name 'HasLUAShield' -Value '' -PropertyType String -Force -ea SilentlyContinue;
     New-ItemProperty -LiteralPath 'HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shell\TakeOwnership' -Name 'NoWorkingDirectory' -Value '' -PropertyType String -Force -ea SilentlyContinue;
