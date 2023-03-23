@@ -1,7 +1,10 @@
 @echo off
-echo Veillez à bien prendre en compte les informations suivantes :
-echo - Un point de restoration sera cree sous le nom de "RestorePointBeforeHardening"
+echo Veillez a bien prendre en compte les informations suivantes :
+echo - Un point de restoration sera cree sous le nom de "RestorePointBeforeHardening".
 echo - Le programme va modifier les permissions/parametre/autorisation/... de certains fichiers/dossiers/registres/services/... de votre ordinateur (plus d'informations dans le fichier "README.md")
+echo - Le programme peut afficher des messages d'erreurs, ne pas les prendre en compte (sauf si le programme s'arrete).
+echo - Le programme peut prendre du temps a s'executer, ne pas fermer le programme avant la fin TOTALE de l'execution.
+echo - Ne JAMAIS relancer le programme memre si il s'est arrete, cela peut entrainer des problemes (utiliser le point de restauration cree au debut du programme).
 
 @echo off
 REM  :: Analyse les permissions
