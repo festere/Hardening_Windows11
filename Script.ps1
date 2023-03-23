@@ -3,11 +3,6 @@
 ##########################################################################################
 
 
-#Elevation des priviledges
-Write-Output "Elevation des priviledges..."
-do {} until (Elevate-Privileges SeTakeOwnershipPrivilege)
-
-
 #Nom de la fenetre
 $Host.UI.RawUI.WindowTitle = "Hardening_Windows $([char]0x00A9)" 
 vssadmin delete shadows /all /quiet | Out-Null
@@ -15,9 +10,9 @@ vssadmin delete shadows /all /quiet | Out-Null
 
 #Creation d'un point de restauration
 Write-Host "Creation d'un point de restauration..."
-New-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemRestore" -Name "SystemRestorePointCreationFrequency" -Type "DWORD" -Value 0 -Force
+New-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemRestore" -Name "RestorePointBeforeHardening" -Type "DWORD" -Value 0 -Force
 Checkpoint-Computer -Description "Hardening_Windows" -RestorePointType MODIFY_SETTINGS
-Write-Host "Point de restauration créé avec succès !" -ForegroundColor Green
+Write-Host "Point de restauration cree avec succes !" -ForegroundColor Green
 
 
 ##########################################################################################
@@ -29,8 +24,6 @@ Write-Host "Le parametrage de Windows Defender commence..." -ForegroundColor Yel
 if ((Get-Location).Path -NE $PSScriptRoot) { 
     Set-Location $PSScriptRoot 
 }
-
-Write-Host "Enabling Windows Defender Protections and Features" -ForegroundColor Green -BackgroundColor Black
 
 Write-Host "Copying Files to Supported Directories"
 #Windows Defender Configuration Files
@@ -130,10 +123,10 @@ Set-MpPreference -SignatureUpdateInterval 8
 
 Write-Host "Disabling Account Prompts"
 # Dismiss Microsoft Defender offer in the Windows Security about signing in Microsoft account
-If (!(Test-Path -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Security Health\State\AccountProtection_MicrosoftAccount_Disconnected")) {
-    New-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Security Health\State" -Name "AccountProtection_MicrosoftAccount_Disconnected" -PropertyType "DWORD" -Value "1" -Force
+If (!(Test-Path -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Security Health\State\AccountProtection_MicrosoftAccount_Disconnected")) {
+    New-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Security Health\State" -Name "AccountProtection_MicrosoftAccount_Disconnected" -PropertyType "DWORD" -Value "1" -Force
 }Else {
-    New-ItemProperty -Path "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Security Health\State" -Name "AccountProtection_MicrosoftAccount_Disconnected" -PropertyType "DWORD" -Value "1" -Force
+    New-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Security Health\State" -Name "AccountProtection_MicrosoftAccount_Disconnected" -PropertyType "DWORD" -Value "1" -Force
 }
 
 Write-Host "Enabling Cloud-delivered Protections"
@@ -179,22 +172,13 @@ Add-MpPreference -AttackSurfaceReductionRules_Ids 56a863a9-875e-4185-98a7-b882c6
 Write-Host " -Use advanced protection against ransomware"
 Add-MpPreference -AttackSurfaceReductionRules_Ids c1db55ab-c21a-4637-bb3f-a12568109d35 -AttackSurfaceReductionRules_Actions Enabled
 
-Write-Host "Enabling... Windows Defender Group Policy Settings"
-.\Files\LGPO\LGPO.exe /g .\Files\GPO\
-
-Write-Host "Updating Signatures..."
-#Update Signatures
-.\MpCmdRun.exe -SignatureUpdate
-Update-MpSignature -UpdateSource MicrosoftUpdateServer
-Update-MpSignature -UpdateSource MMPC
-
 Write-Host "Printting Current Windows Defender Configuration"
 # Print Historic Detections
 Get-MpComputerStatus ; Get-MpPreference ; Get-MpThreat ; Get-MpThreatDetection
 
 Write-Host "Starting Full Scan and removing any known threats..."
 #Start Virus Scan
-Start-MpScan -ScanType FullScan
+#Start-MpScan -ScanType FullScan
 
 #Remove Active Threats From System
 Remove-MpThreat
