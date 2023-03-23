@@ -5,6 +5,8 @@ echo - Le programme va modifier les permissions/parametre/autorisation/... de ce
 echo - Le programme peut afficher des messages d'erreurs, ne pas les prendre en compte (sauf si le programme s'arrete).
 echo - Le programme peut prendre du temps a s'executer, ne pas fermer le programme avant la fin TOTALE de l'execution.
 echo - Ne JAMAIS relancer le programme memre si il s'est arrete, cela peut entrainer des problemes (utiliser le point de restauration cree au debut du programme).
+echo - Fermez TOUS les programmes avant de lancer le programme.
+echo - Ne JAMAIS cliquer sur aucun bouton pendant l'execution du programme meme si propose (toutes les actions sont automatiques).
 
 @echo off
 REM  :: Analyse les permissions
@@ -14,7 +16,7 @@ REM  :: Analyse les permissions
 >nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
 )
 
-REM :: Si une erreur est detecte les autorisations admin sertont refusées
+REM :: Si une erreur est detecte les autorisations admin sertont refusees
 if '%errorlevel%' NEQ '0' (
     echo Demande des droits administrateurs...
     goto UACPrompt
