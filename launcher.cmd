@@ -1,4 +1,9 @@
 @echo off
+echo Veillez à bien prendre en compte les informations suivantes :
+echo - Un point de restoration sera cree sous le nom de "RestorePointBeforeHardening"
+echo - Le programme va modifier les permissions/parametre/autorisation/... de certains fichiers/dossiers/registres/services/... de votre ordinateur (plus d'informations dans le fichier "README.md")
+
+@echo off
 REM  :: Analyse les permissions
     IF "%PROCESSOR_ARCHITECTURE%" EQU "amd64" (
 >nul 2>&1 "%SYSTEMROOT%\SysWOW64\cacls.exe" "%SYSTEMROOT%\SysWOW64\config\system"

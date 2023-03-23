@@ -9,14 +9,7 @@ vssadmin delete shadows /all /quiet | Out-Null
 
 
 #Creation d'un point de restauration
-$rp = [SystemRestore]::CreateRestorePoint($description, 0, 100)
-
-# Check if the restore point was created successfully
-if ($rp.SequenceNumber -gt 0) {
-    Write-Host "Point de restauration cree avec succes. Sequence number:" $rp.SequenceNumber -ForegroundColor Green
-} else {
-    Write-Host "Failed to create restore point."
-}
+Checkpoint-Computer -Description "RestorePointBeforeHardening" -RestorePointType "MODIFY_SETTINGS"
 
 
 ##########################################################################################
