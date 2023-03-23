@@ -11,7 +11,6 @@ vssadmin delete shadows /all /quiet | Out-Null
 #Creation d'un point de restauration
 Write-Host "Creation d'un point de restauration..."
 New-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemRestore" -Name "RestorePointBeforeHardening" -Type "DWORD" -Value 0 -Force
-Checkpoint-Computer -Description "Hardening_Windows" -RestorePointType MODIFY_SETTINGS
 Write-Host "Point de restauration cree avec succes !" -ForegroundColor Green
 
 
@@ -24,10 +23,6 @@ Write-Host "Le parametrage de Windows Defender commence..." -ForegroundColor Yel
 if ((Get-Location).Path -NE $PSScriptRoot) { 
     Set-Location $PSScriptRoot 
 }
-
-Write-Host "Copying Files to Supported Directories"
-#Windows Defender Configuration Files
-mkdir "C:\temp\Windows Defender"; Copy-Item -Path .\Files\"Windows Defender Configuration Files"\* -Destination C:\temp\"Windows Defender"\ -Force -Recurse -ErrorAction SilentlyContinue
 
 Write-Host "Enabling Windows Defender Exploit Protections..."
 #Enable Windows Defender Exploit Protection
@@ -176,27 +171,13 @@ Write-Host "Printting Current Windows Defender Configuration"
 # Print Historic Detections
 Get-MpComputerStatus ; Get-MpPreference ; Get-MpThreat ; Get-MpThreatDetection
 
-Write-Host "Starting Full Scan and removing any known threats..."
-#Start Virus Scan
-#Start-MpScan -ScanType FullScan
-
-#Remove Active Threats From System
-Remove-MpThreat
-
-Write-Host "Windows Defender a ete optimiser avec succès !" -ForegroundColor Green
+Write-Host "Windows Defender a ete optimiser avec succes !" -ForegroundColor Green
 
 ############################################################################################################
 # Optimize Windows 
 ############################################################################################################
 Write-Host "L'optimisation commence..." -ForegroundColor Yellow
 
-function Checks{
-    if(!($WindowsVersion -match "Microsoft Windows 11")) {
-        Write-Warning " No supported operating system! Windows 11 required"
-        Write-Warning " The script will be closed in 20 seconds"
-        Start-Sleep 20;exit
-    }
-}
 
 function WindowsTweaks_Services {
     $servicesDisable = @(
@@ -435,12 +416,6 @@ function ooShutup{
     .\OOSU10.exe ooshutup10.cfg /quiet
 }
 
-function Autoruns{
-    Start-BitsTransfer -Source "https://download.sysinternals.com/files/Autoruns.zip" -Destination $env:temp\Autoruns.zip
-    Expand-Archive $env:temp\Autoruns.zip  $env:temp
-    Start-Process $env:temp\Autoruns64.exe 
-}
-
 function WindowsCleanup{
     Clear-Host
     gpupdate.exe /force 
@@ -464,11 +439,6 @@ function Runtime{
     IF(!($InstalledSoftware -Contains "Microsoft Windows Desktop Runtime - 6.0.14 (x64)")){winget install --id=Microsoft.DotNet.DesktopRuntime.6 --architecture x64 --exact --accept-source-agreements}
     IF(!($InstalledSoftware -Contains "Microsoft Windows Desktop Runtime - 7.0.3 (x64)")){winget install --id=Microsoft.DotNet.DesktopRuntime.7 --architecture x64 --exact --accept-source-agreements}
     winget install --id=Microsoft.DirectX --exact --accept-source-agreements
-}
-    
-function Process_Lasso{
-    Start-BitsTransfer -Source "https://dl.bitsum.com/files/processlassosetup64.exe" -Destination $env:temp\ProcesslassoSetup64.exe
-    Start-Process -FilePath "$env:temp\ProcesslassoSetup64.exe" -ArgumentList "/S /language=French"
 }
 
 function ApplicationDisabling {
@@ -1382,7 +1352,6 @@ function FirewallTweaks {
     netsh advfirewall firewall add rule name="block_WSearch_out" dir=out service="WSearch" action=block enable=yes
 }
 
-Checks
 WindowsTweaks
 WindowsTweaks_Services
 WindowsTweaks_Registry
@@ -1392,10 +1361,8 @@ WindowsTweaks_Index
 TakeOwnership
 SophiaScript
 ooShutup
-Autoruns
 WindowsCleanup
 Runtime
-Process_Lasso
 ApplicationDisabling
 ServiceAllow
 TLS_SSLTweak
