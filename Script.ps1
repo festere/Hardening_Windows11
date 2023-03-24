@@ -9,7 +9,7 @@ vssadmin delete shadows /all /quiet | Out-Null
 
 
 #Creation d'un point de restauration
-Enable-ComputerRestore -Drive "C:\" -Force
+Enable-ComputerRestore -Drive "C:\"
 Checkpoint-Computer -Description "RestorePointBeforeHardening"
 
 
