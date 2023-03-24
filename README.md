@@ -10,11 +10,11 @@
 2. [Etapes](#Etapes)
 
 <br>
-
-# Fonctionnalitées: <a name="Fonctionnalitées"></a>
-
+<br>
+<br>
 <br>
 
+# <a name="Fonctionnalitées">Fonctionnalitées:</a>
 1. Securisation: <a name="Securisation"></a>
 - [x] Creation d'un point de restauration
 - [x] Conservation ou suppression des droits administrateur de l'utilisateur local
@@ -239,7 +239,7 @@ aux réseaux partagés par les contacts et aux points d'accès offrant des servi
 <br>
 <br>
 
-1. Optimisation: <a name="Optimisation"></a>
+1. <a name="Optimisation">Optimisation:</a>
 - [x] Suppression des fichiers temporaires
 - [x] Installation/Mise à jour de Microsoft.dotNetFramework
 - [x] Installation/Mise à jour de Microsoft Visual C++ 2022 X64 Minimum Runtime - 14.34.31931
@@ -252,7 +252,7 @@ aux réseaux partagés par les contacts et aux points d'accès offrant des servi
 <br>
 <br>
 
-# Etapes <a name="Etapes"></a>
+# <a name="Etapes">Etapes:</a>
 
 1. Télécharger le fichier.
 2. Décompresser le fichier.
