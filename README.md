@@ -11,7 +11,7 @@
 
 <br>
 
-> __Note__ Fonctionnalitées: <a name="Fonctionnalitées"></a>
+# Fonctionnalitées: <a name="Fonctionnalitées"></a>
 
 <br>
 
@@ -252,10 +252,10 @@ aux réseaux partagés par les contacts et aux points d'accès offrant des servi
 <br>
 <br>
 
-> __Warning__ <ins>Etapes:</ins> <a name="Etapes"></a>
->
-> 1. Télécharger le fichier.
-> 2. Décompresser le fichier.
-> 3. Exécuter le script laucher.cmd.
-> 4. Cliquer sur Y pour lancer le script.
-> 5. Cliquer sur Y ou N pour supprimer ou conserver les droits administrateur de l'utilisateur local.
+# Etapes <a name="Etapes"></a>
+
+1. Télécharger le fichier.
+2. Décompresser le fichier.
+3. Exécuter le script laucher.cmd.
+4. Cliquer sur Y pour lancer le script.
+5. Cliquer sur Y ou N pour supprimer ou conserver les droits administrateur de l'utilisateur local.
