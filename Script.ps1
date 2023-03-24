@@ -12,6 +12,19 @@ vssadmin delete shadows /all /quiet | Out-Null
 Enable-ComputerRestore -Drive "C:\" -Force
 Checkpoint-Computer -Description "RestorePointBeforeHardening"
 
+##########################################################################################
+# Configuration de la suppression des droits d'administrateur pour l'utilisateur local
+##########################################################################################
+$answer = Read-Host "Voulez-vous supprimer les droits d'administrateur pour l'utilisateur local ? (O/N)"
+if ($answer -eq "O") {
+    Write-Host "Suppression des droits d'administrateur pour l'utilisateur local..." -ForegroundColor Yellow
+    reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\CredUI" /f
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\CredUI" -Name EnumerateAdministrators -Value 0
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name LocalAccountTokenFilterPolicy -Value 0
+    Write-Host "Les droits d'administrateur pour l'utilisateur local ont ete supprimes" -ForegroundColor Green
+} else {
+    Write-Host "Les droits d'administrateur pour l'utilisateur local ne seront pas supprimes." -ForegroundColor Green
+}
 
 ##########################################################################################
 # Parametrage de Windows Defender
@@ -643,10 +656,6 @@ function TLS_SSLTweak{
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\HomeGroup" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\HomeGroup" -Name DisableHomeGroup -Value 1
 
-    # Desactiver l'enumeration des comptes d’administrateur aux privileges eleves
-    #reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\CredUI" /f
-    #Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\CredUI" -Name EnumerateAdministrators -Value 0
-
     # Exiger un chemin d’acces approuve pour une entree d’informations d’identification
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\CredUI" -Name EnableSecureCredentialPrompting -Value 1
 
@@ -709,9 +718,6 @@ function TLS_SSLTweak{
     # Configuration du service Mises a jour automatiques
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WindowsUpdate\AU" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name AUOptions -Value 3 # Telechargement automatique et notification des installations
-
-    # Appliquer des restrictions UAC aux comptes locaux lors des ouvertures de session sur le reseau (Apply UAC restrictions to local accounts on network logons)
-    #Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name LocalAccountTokenFilterPolicy -Value 0
 
     # WDigest Authentication (disabling may require KB2871997)
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /f
@@ -1332,7 +1338,12 @@ $paths = @(
     "$env:APPDATA\..\locallow\AMD",
     "$env:windir\..\MSOCache")
     foreach ($path in $paths) {
-        Get-ChildItem -Path $path -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse
+        if (Test-Path -Path $path) {
+            Get-ChildItem -Path $path -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse
+        } 
+        else {
+            Write-Host "Le chemin $path n'existe pas" -ForegroundColor Red
+        }
     }
 
 function Reboot{
