@@ -9,7 +9,7 @@ vssadmin delete shadows /all /quiet | Out-Null
 
 
 #Creation d'un point de restauration
-Checkpoint-Computer -Description "RestorePointBeforeHardening" -RestorePointType "MODIFY_SETTINGS"
+Checkpoint-Computer -Description "RestorePointBeforeHardening"
 
 
 ##########################################################################################
@@ -28,8 +28,6 @@ Write-Host "Enabling Windows Defender Features..."
 Write-Host " -Enabling real-time monitoring"
 Set-MpPreference -DisableRealtimeMonitoring $false
 #Enable cloud-deliveredprotection
-Write-Host " -Enabling cloud-deliveredprotection"
-Set-MpPreference -MAPSReporting Advanced
 #Enable sample submission
 Write-Host " -Disabling sample submission"
 Set-MpPreference -SubmitSamplesConsent Never
@@ -101,7 +99,7 @@ Set-MpPreference -SignatureUpdateInterval 8
 Write-Host "Disabling Account Prompts"
 # Dismiss Microsoft Defender offer in the Windows Security about signing in Microsoft account
 If (!(Test-Path -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Security Health\State\AccountProtection_MicrosoftAccount_Disconnected")) {
-    New-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Security Health\State" -Name "AccountProtection_MicrosoftAccount_Disconnected" -PropertyType "DWORD" -Value "1" -Force
+    
 }Else {
     New-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Security Health\State" -Name "AccountProtection_MicrosoftAccount_Disconnected" -PropertyType "DWORD" -Value "1" -Force
 }
@@ -131,8 +129,6 @@ Add-MpPreference -AttackSurfaceReductionRules_Ids 92E97FA1-2EDF-4476-BDD6-9DD0B4
 Write-Host " -Block executable files from running unless they meet a prevalence, age, or trusted list criterion"
 Add-MpPreference -AttackSurfaceReductionRules_Ids 01443614-cd74-433a-b99e-2ecdc07bfc25 -AttackSurfaceReductionRules_Actions Enabled
 Write-Host " -Block credential stealing from the Windows local security authority subsystem"
-Add-MpPreference -AttackSurfaceReductionRules_Ids 9e6c4e1f-7d60-472f-ba1a-a39ef669e4b2 -AttackSurfaceReductionRules_Actions Enabled
-Write-Host " -Block persistence through WMI event subscription"
 Add-MpPreference -AttackSurfaceReductionRules_Ids e6db77e5-3df2-4cf1-b95a-636979351e5b -AttackSurfaceReductionRules_Actions Enabled
 Write-Host " -Block process creations originating from PSExec and WMI commands"
 Add-MpPreference -AttackSurfaceReductionRules_Ids d1e49aac-8f56-4280-b9ba-993a6d77406c -AttackSurfaceReductionRules_Actions Enabled
@@ -142,8 +138,6 @@ Write-Host " -Block Office communication application from creating child process
 Add-MpPreference -AttackSurfaceReductionRules_Ids 26190899-1602-49e8-8b27-eb1d0a1ce869 -AttackSurfaceReductionRules_Actions Enabled
 Write-Host " -Block Adobe Reader from creating child processes"
 Add-MpPreference -AttackSurfaceReductionRules_Ids 7674ba52-37eb-4a4f-a9a1-f0f9a1619a2c -AttackSurfaceReductionRules_Actions Enabled
-Write-Host " -Block persistence through WMI event subscription"
-Add-MpPreference -AttackSurfaceReductionRules_Ids e6db77e5-3df2-4cf1-b95a-636979351e5b -AttackSurfaceReductionRules_Actions Enabled
 Write-Host " -Block abuse of exploited vulnerable signed drivers"
 Add-MpPreference -AttackSurfaceReductionRules_Ids 56a863a9-875e-4185-98a7-b882c64b5ce5 -AttackSurfaceReductionRules_Actions Enabled
 Write-Host " -Use advanced protection against ransomware"
@@ -172,7 +166,6 @@ function WindowsTweaks_Services {
     "MixedRealityOpenXRSvc",
     "WalletService",
     "SmsRouter",
-    "SharedAccess",
     "MapsBroker",
     "PhoneSvc",
     "ScDeviceEnum",
@@ -186,7 +179,6 @@ function WindowsTweaks_Services {
     "PimIndexMaintenanceSvc",
     "OneSyncSvc",
     "UnistoreSvc",
-    "DiagTrack",
     "dmwappushservice",
     "diagnosticshub.standardcollector.service",
     "diagsvc",
@@ -320,7 +312,6 @@ function WindowsTweaks_Registry{
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Value 0 -Force
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Value 0 -Force
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "LimitEnhancedDiagnosticDataWindowsAnalytics" -Value 0 -Force
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Value 0 -Force 
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsSelfHost\UI\Visibility" -Name "HideInsiderPage" -Value 1 -Force
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\activity" -Name "Value" -Value "Deny" -Force
 }
@@ -369,7 +360,6 @@ function WindowsTweaks_Index{
 }
                 
 function SophiaScript{
-    Clear-Host
     iF($WindowsVersion -match "Microsoft Windows 11") {
         Start-BitsTransfer -Source "https://github.com/farag2/Sophia-Script-for-Windows/releases/download/6.3.2/Sophia.Script.for.Windows.11.v6.3.2.zip" -Destination $env:temp\Sophia.zip
         Expand-Archive $env:temp\Sophia.zip $env:temp -force
@@ -390,7 +380,6 @@ function ooShutup{
 }
 
 function WindowsCleanup{
-    Clear-Host
     gpupdate.exe /force 
     ipconfig /flushdns
     Start-Process -FilePath "cmd.exe"  -ArgumentList '/c "%windir%\system32\rundll32.exe advapi32.dll,ProcessIdleTasks'
@@ -471,10 +460,6 @@ function ApplicationDisabling {
 }
 
 function ServiceAllow {
-    reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\explorer" /f
-    reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\explorer" /f /v DisallowRun /t REG_DWORD /d 1
-    reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\explorer\DisallowRun" /f
-
     $ServicesAllow = @(
         "appointments",
         "phoneCallHistory"
@@ -507,7 +492,6 @@ function TLS_SSLTweak{
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\CloudContent" -Name DisableWindowsConsumerFeatures -Value 1
 
     # Ne pas afficher les conseils de Windows
-    reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\CloudContent" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\CloudContent" -Name DisableSoftLanding -Value 1
 
     # Ne pas autorise le developpement d’applications du Windows Store et leur installation depuis un environnement de developpement integre
@@ -626,9 +610,6 @@ function TLS_SSLTweak{
     # Desactiver le telechargement des pilotes d'imprimantes via HTTP
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows NT\Printers" -Name DisableWebPnPDownload -Value 1
 
-    # Desactiver le service d'association de fichier Internet
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoInternetOpenWith -Value 1
-
     # Desactiver l'acces au Windows Store
     reg add "HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Explorer" /f
     Set-ItemProperty -Path "Registry::HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Explorer" -Name NoUseStoreOpenWith -Value 1
@@ -657,16 +638,15 @@ function TLS_SSLTweak{
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\HandwritingErrorReports" -Name PreventHandwritingErrorReports -Value 1
 
     # Activer le niveau de securisation renforcee des jetons de liaison de canaux
-    reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WinRM\Service" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WinRM\Service" -Name CBTHardeningLevelStatus -Value 1
 
     # Empecher l’ordinateur de rejoindre un groupe residentiel
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\HomeGroup" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\HomeGroup" -Name DisableHomeGroup -Value 1
 
-    # Desactiver l'enumeration les comptes d’administrateur aux privileges eleves
-    reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\CredUI" /f
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\CredUI" -Name EnumerateAdministrators -Value 0
+    # Desactiver l'enumeration des comptes d’administrateur aux privileges eleves
+    #reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\CredUI" /f
+    #Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\CredUI" -Name EnumerateAdministrators -Value 0
 
     # Exiger un chemin d’acces approuve pour une entree d’informations d’identification
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\CredUI" -Name EnableSecureCredentialPrompting -Value 1
@@ -699,20 +679,14 @@ function TLS_SSLTweak{
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" -Name fEncryptRPCTraffic -Value 1
 
     # Definir le comportement par defaut du programme Autorun
-    reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /f
-    reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /f
     Set-ItemProperty -Path "Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoAutorun -Value 2 # Executer automatiquement les commandes Autorun
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoAutorun -Value 2 # Executer automatiquement les commandes Autorun
 
     # Desactiver l’execution automatique
-    reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /f
-    reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /f
     Set-ItemProperty -Path "Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoDriveTypeAutoRun -Value 181 # Lecteurs de CD-ROM et de supports amovibles
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoDriveTypeAutoRun -Value 181 # Lecteurs de CD-ROM et de supports amovibles
 
     # Interdire l’execution automatique pour les peripheriques autres que ceux du volume
-    reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /f
-    reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /f
     Set-ItemProperty -Path "Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoAutoplayfornonVolume -Value 1
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoAutoplayfornonVolume -Value 1
 
@@ -738,8 +712,7 @@ function TLS_SSLTweak{
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name AUOptions -Value 3 # Telechargement automatique et notification des installations
 
     # Appliquer des restrictions UAC aux comptes locaux lors des ouvertures de session sur le reseau (Apply UAC restrictions to local accounts on network logons)
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /f
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name LocalAccountTokenFilterPolicy -Value 0
+    #Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name LocalAccountTokenFilterPolicy -Value 0
 
     # WDigest Authentication (disabling may require KB2871997)
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /f
@@ -963,7 +936,6 @@ function TLS_SSLTweak{
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Power\PowerSettings\abfc2519-3608-4c2a-94ea-171b0ed546ab" -Name ACSettingIndex -Value 0 # (disable)
 
     # Ne pas autoriser les etats de veille (S1-S3) lorsque l'ordinateur est en veille (sur batterie)
-    reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Power\PowerSettings\abfc2519-3608-4c2a-94ea-171b0ed546ab" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Power\PowerSettings\abfc2519-3608-4c2a-94ea-171b0ed546ab" -Name DCSettingIndex -Value 0 # (disable)
 
     # Strategie d'initialisation des pilotes de demarrage
@@ -975,7 +947,6 @@ function TLS_SSLTweak{
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\MitigationOptions" -Name MitigationOptions_FontBocking -Value 3000000000000 # Enregistrer les evenements sans bloquer les polices non approuvees
 
     # Ne pas afficher l'animation a la premiere connexion
-    reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name EnableFirstLogonAnimation -Value 0
 
     # Ne pas afficher l'interface utilisateur de selection de reseau
@@ -1322,16 +1293,6 @@ function FirewallTweaks {
 ##############################################################################################################
 Write-Host "Le nettoyage du disque commence..." -ForegroundColor Yellow
 
-#Suppression des fichiers temporaires
-$Key = Get-ChildItem HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches
-ForEach($result in $Key) {
-    If($result.name -eq "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\DownloadsFolder"){
-
-    }Else{
-    $Regkey = 'HKLM:' + $result.Name.Substring( 18 )
-    New-ItemProperty -Path $Regkey -Name 'StateFlags0001' -Value 2 -PropertyType DWORD -Force -EA 0 | Out-Null}
-}
-
 sfc /SCANNOW
 Dism.exe /Online /Cleanup-Image /AnalyzeComponentStore /NoRestart
 Dism.exe /Online /Cleanup-Image /spsuperseded /NoRestart
@@ -1355,7 +1316,6 @@ $paths = @(
     foreach ($path in $paths) {
         Get-ChildItem -Path $path -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse
     }
-lodctr /r
 lodctr /r
 
 Start-Process cleanmgr.exe /sagerun:1 -Wait
@@ -1385,4 +1345,4 @@ function Reboot{
     Restart-Computer
 }
 
-Reboot #rebbot le system
+Reboot #rebbot le systeme
