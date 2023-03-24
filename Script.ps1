@@ -15,8 +15,8 @@ Checkpoint-Computer -Description "RestorePointBeforeHardening"
 ##########################################################################################
 # Configuration de la suppression des droits d'administrateur pour l'utilisateur local
 ##########################################################################################
-$answer = Read-Host "Voulez-vous supprimer les droits d'administrateur pour l'utilisateur local ? (O/N)"
-if ($answer -eq "O") {
+$answer = Read-Host "Voulez-vous supprimer les droits d'administrateur pour l'utilisateur local ? (Y/N)"
+if ($answer -eq "Y" -or $answer -eq "y") {
     Write-Host "Suppression des droits d'administrateur pour l'utilisateur local..." -ForegroundColor Yellow
     reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\CredUI" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\CredUI" -Name EnumerateAdministrators -Value 0
@@ -236,14 +236,20 @@ function WindowsTweaks_Services {
     "OneSyncSvc_184354",
     "MapsBroker")
     foreach ($serviceDisable in $servicesDisable){
-        $StopService = Get-Service -Name $serviceDisable
+        $StopService = Get-Service -Name $serviceDisable -ErrorAction SilentlyContinue #obtain the service object
 
-        if ($StopService.Status -ne 'Running'){
-        Stop-Service $serviceDisable
-        Set-Service $serviceDisable -StartupType Disabled
+        if ($serviceDisable.Length -gt 0) { #check if the service exists
+
+            if ($StopService.Status -ne 'Running'){ #check if the service is running
+            Stop-Service $serviceDisable
+            Set-Service $serviceDisable -StartupType Disabled
+            }
+            else{
+                Write-Host "Le service $serviceDisable est deja desactive"
+            }
         }
-        else{
-            Write-Host "Le service $serviceDisable est deja desactive"
+       else {
+        Write-Host "Le service $serviceDisable n'existe pas"
         }
     }
 
@@ -254,13 +260,19 @@ function WindowsTweaks_Services {
         "Netlogon",
         "MpsSvc")
     foreach ($serviceEnable in $servicesEnable){
-        $StartService = Get-Service -Name $serviceEnable
+        $StartService = Get-Service -Name $serviceEnable -ErrorAction SilentlyContinue #obtain the service object
 
-        if ($StartService.Status -ne 'Stopped'){
-        Set-Service $serviceEnable -StartupType Automatic
+        if ($serviceDisable.Length -gt 0) { #check if the service exists
+
+            if ($StartService.Status -ne 'Stopped'){ #check if the service is stopped
+            Set-Service $serviceEnable -StartupType Automatic
+            }
+            else{
+                Write-Host "Le service $serviceDisable est deja active"
+            }
         }
-        else{
-            Write-Host "Le service $serviceDisable est deja active"
+        else {
+        Write-Host "Le service $serviceDisable n'existe pas"
         }
     }
 }
@@ -1294,12 +1306,6 @@ function FirewallTweaks {
 ##############################################################################################################
 Write-Host "Le nettoyage du disque commence..." -ForegroundColor Yellow
 
-sfc /SCANNOW
-Dism.exe /Online /Cleanup-Image /AnalyzeComponentStore /NoRestart
-Dism.exe /Online /Cleanup-Image /spsuperseded /NoRestart
-Dism.exe /Online /Cleanup-Image /StartComponentCleanup /NoRestart
-Clear-BCCache -Force -ErrorAction SilentlyContinue
-
 lodctr /r
 
 Start-Process cleanmgr.exe /sagerun:1 -Wait
@@ -1337,14 +1343,20 @@ $paths = @(
     "$env:LOCALAPPDATA\CrashDumps",
     "$env:APPDATA\..\locallow\AMD",
     "$env:windir\..\MSOCache")
-    foreach ($path in $paths) {
-        if (Test-Path -Path $path) {
-            Get-ChildItem -Path $path -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse
-        } 
-        else {
-            Write-Host "Le chemin $path n'existe pas" -ForegroundColor Red
-        }
+foreach ($path in $paths) {
+    if (Test-Path -Path $path) {
+        Get-ChildItem -Path $path -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse
+    } 
+    else {
+        Write-Host "Le chemin $path n'existe pas" -ForegroundColor Red
     }
+}
+
+sfc /SCANNOW
+Dism.exe /Online /Cleanup-Image /AnalyzeComponentStore /NoRestart
+Dism.exe /Online /Cleanup-Image /spsuperseded /NoRestart
+Dism.exe /Online /Cleanup-Image /StartComponentCleanup /NoRestart
+Clear-BCCache -ErrorAction SilentlyContinue
 
 function Reboot{
     Write-Host "Le system a ete optimise avec succes et vas redemarer dans 20 secondes!" -ForegroundColor Green

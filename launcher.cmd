@@ -12,7 +12,7 @@ echo[
 echo - Le programme peut prendre du temps a s'executer, ne pas fermer le programme avant la fin [101mTOTALE[0m de l'execution.
 echo[
 
-echo - Ne [101mJAMAIS[0m relancer le programme memre si il s'est arrete, cela peut entrainer des problemes (utiliser le point de restauration cree au debut du programme).
+echo - Ne [101mJAMAIS[0m relancer le programme meme si il s'est arrete, cela peut entrainer des problemes (utiliser le point de restauration cree au debut du programme).
 echo[
 
 echo - Fermez [101mTOUS[0m les programmes avant de lancer le programme.
@@ -51,8 +51,8 @@ if '%errorlevel%' NEQ '0' (
 @echo off
 setlocal
 :PROMPT
-SET /P AREYOUSURE=Etes vous sur de lancer le programme (Y/[N])? 
-IF /I "%AREYOUSURE%" NEQ "Y" GOTO END
+SET /P AREYOUSURE=Etes vous sur de lancer le programme (Y/N)? 
+IF /I "%AREYOUSURE%" NEQ "Y" OR "y" GOTO END
 
 echo Lancement du programme
 
