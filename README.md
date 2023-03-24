@@ -3,11 +3,19 @@
 
 <br>
 
-> __Note__ Fonctionnalité :
+# Table of contents
+1. [Fonctionnalitées](#Fonctionnalitées)
+    1. [Securisation](#Securisation)
+    2. [Optimisation](#Optimisation)
+2. [Etapes](#Etapes)
 
 <br>
 
-1. Securisation:
+> __Note__ Fonctionnalitées: <a name="Fonctionnalitées"></a>
+
+<br>
+
+1. Securisation: <a name="Securisation"></a>
 - [x] Creation d'un point de restauration
 - [x] Conservation ou suppression des droits administrateur de l'utilisateur local
 - [x] Activation des fonctionnalités de Windows Defender
@@ -231,7 +239,7 @@ aux réseaux partagés par les contacts et aux points d'accès offrant des servi
 <br>
 <br>
 
-1. Optimisation:
+1. Optimisation: <a name="Optimisation"></a>
 - [x] Suppression des fichiers temporaires
 - [x] Installation/Mise à jour de Microsoft.dotNetFramework
 - [x] Installation/Mise à jour de Microsoft Visual C++ 2022 X64 Minimum Runtime - 14.34.31931
@@ -244,7 +252,7 @@ aux réseaux partagés par les contacts et aux points d'accès offrant des servi
 <br>
 <br>
 
-> __Warning__ <ins>Etapes:</ins>
+> __Warning__ <ins>Etapes:</ins> <a name="Etapes"></a>
 >
 > 1. Télécharger le fichier.
 > 2. Décompresser le fichier.
