@@ -9,7 +9,7 @@ vssadmin delete shadows /all /quiet | Out-Null
 
 
 #Creation d'un point de restauration
-Enable-ComputerRestore -Drive "C:\"
+Enable-ComputerRestore -Drive "C:\" -Force
 Checkpoint-Computer -Description "RestorePointBeforeHardening"
 
 
@@ -361,7 +361,6 @@ function WindowsTweaks_Index{
 }
                 
 function SophiaScript{
-    Powershell.exe -executionpolicy Bypass $ScriptFolder\Sophia_Script\Sophia.ps1
     if($WindowsVersion -match "Microsoft Windows 11") {
         Start-BitsTransfer -Source "https://github.com/farag2/Sophia-Script-for-Windows/releases/download/6.3.2/Sophia.Script.for.Windows.11.v6.3.2.zip" -Destination $env:temp\Sophia.zip
         Expand-Archive $env:temp\Sophia.zip $env:temp -force
@@ -370,6 +369,7 @@ function SophiaScript{
     else { 
         Write-Host "Can't start SophiaScript"
     }
+    Powershell.exe -executionpolicy Bypass $ScriptFolder\Sophia_Script\Sophia.ps1
 }
 
 function ooShutup{
@@ -1294,23 +1294,6 @@ Dism.exe /Online /Cleanup-Image /spsuperseded /NoRestart
 Dism.exe /Online /Cleanup-Image /StartComponentCleanup /NoRestart
 Clear-BCCache -Force -ErrorAction SilentlyContinue
 
-$paths = @(
-    "$env:temp",
-    "$env:windir\Temp",
-    "$env:windir\Prefetch",
-    "$env:SystemRoot\SoftwareDistribution\Download",
-    "$env:ProgramData\Microsoft\Windows\RetailDemo",
-    "$env:LOCALAPPDATA\AMD",
-    "$env:windir/../AMD/",
-    "$env:LOCALAPPDATA\NVIDIA\DXCache",
-    "$env:LOCALAPPDATA\NVIDIA\GLCache",
-    "$env:APPDATA\..\locallow\Intel\ShaderCache",
-    "$env:LOCALAPPDATA\CrashDumps",
-    "$env:APPDATA\..\locallow\AMD",
-    "$env:windir\..\MSOCache")
-    foreach ($path in $paths) {
-        Get-ChildItem -Path $path -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse
-    }
 lodctr /r
 
 Start-Process cleanmgr.exe /sagerun:1 -Wait
@@ -1333,6 +1316,24 @@ MicrosoftOfficeTweaks
 AdobeTweaks
 GoogleChromeTweaks
 FirewallTweaks
+
+$paths = @(
+    "$env:temp",
+    "$env:windir\Temp",
+    "$env:windir\Prefetch",
+    "$env:SystemRoot\SoftwareDistribution\Download",
+    "$env:ProgramData\Microsoft\Windows\RetailDemo",
+    "$env:LOCALAPPDATA\AMD",
+    "$env:windir/../AMD/",
+    "$env:LOCALAPPDATA\NVIDIA\DXCache",
+    "$env:LOCALAPPDATA\NVIDIA\GLCache",
+    "$env:APPDATA\..\locallow\Intel\ShaderCache",
+    "$env:LOCALAPPDATA\CrashDumps",
+    "$env:APPDATA\..\locallow\AMD",
+    "$env:windir\..\MSOCache")
+    foreach ($path in $paths) {
+        Get-ChildItem -Path $path -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse
+    }
 
 function Reboot{
     Write-Host "Le system a ete optimise avec succes et vas redemarer dans 20 secondes!" -ForegroundColor Green
