@@ -7,6 +7,7 @@ By exercising the Licensed Rights (defined below), You accept and agree to be bo
 </p>
 <br>
 <br>
+<p>
 Copyright (c) 2023, festere/Web_Scraping, All rights reserved.
 Licensor: The owner of the copyrighted work (NAME). 
 Licensee: The user of the copyrighted work who obtained the application in a legal way on the official website of NAME or from an approved partener. 
@@ -20,6 +21,7 @@ Limitations: The copyrighted work can't be sublicensed or terminated.
 
 We do not want anyone to see our source code, but if for any reason our code is stolen or otherwise obtained, you should stop here.
 Please kindly inform us the procedure you used to gain access and do NOT go further as it could result in legal action being taken against the individual or entity in question.
+</p>
 <br>
 <br>
 
