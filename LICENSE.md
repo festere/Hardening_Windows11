@@ -8,7 +8,7 @@ By using any Novarex application(s) and/or sevice(s) you are exercising the Lice
 <br>
 If you do not agree with any part of these documents, you must not use any of our application(s) and/or sevice(s) If you do as it could result in legal action being taken against the individual or entity in question.
 <br>
-We also do not grant anyone to see any of part our code(s), database and access without a legal product key obtained officially but if for any reason our code is stolen or otherwise obtained, you should stop here and kindly inform us the procedure you used to gain access and do NOT go further. If you do as it could result in legal action being taken against the individual or entity in question.
+We also do not grant anyone to see any of part our code(s), database and access without a legal product key obtained officially and if for any reason our code is stolen or otherwise obtained, you should stop here and kindly inform us the procedure you used to gain access and do NOT go further. If you do as it could result in legal action being taken against the individual or entity in question.
 </p>
 <br>
 <br>
