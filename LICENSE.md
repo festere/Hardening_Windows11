@@ -3,7 +3,7 @@ By exercising the Licensed Rights (defined below), You accept and agree to be bo
 </p>
 <br>
 <br>
-Copyright (c) 2023, festere/Web_Scraping
+Copyright (c) 2023, festere/Web_Scraping, All rights reserved.
 <br>
 <br>
 
