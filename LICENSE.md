@@ -8,6 +8,18 @@ By exercising the Licensed Rights (defined below), You accept and agree to be bo
 <br>
 <br>
 Copyright (c) 2023, festere/Web_Scraping, All rights reserved.
+Licensor: The owner of the copyrighted work (NAME). 
+Licensee: The user of the copyrighted work who obtained the application in a legal way on the official website of NAME or from an approved partener. 
+
+Use Case: How the copyrighted work can be used.
+
+Term: The copyright does not have an expiration date and is subject to change without notice.
+Territory: This copyrigh is working worldwide.
+Exclusivity: The licensee is the only one who can use the copyrighted work.
+Limitations: The copyrighted work can't be sublicensed or terminated.
+
+We do not want anyone to see our source code, but if for any reason our code is stolen or otherwise obtained, you should stop here.
+Please kindly inform us the procedure you used to gain access and do NOT go further as it could result in legal action being taken against the individual or entity in question.
 <br>
 <br>
 
