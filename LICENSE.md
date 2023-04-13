@@ -1,4 +1,8 @@
 <p>
+This License is also composed by the terms of use and Copyright
+</p>
+<br>
+<p>
 By exercising the Licensed Rights (defined below), You accept and agree to be bound by the terms and conditions of this Creative Commons To the extent this This License may be interpreted as a contract, You are granted the Licensed Rights in consideration of Your acceptance of these terms and conditions, and the Licensor grants You such rights in consideration of benefits the Licensor receives from making the Licensed Material available under these terms and conditions.
 </p>
 <br>
