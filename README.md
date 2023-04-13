@@ -3,6 +3,14 @@
 
 <br>
 
+# Disclaimer
+<span style="color:red">Before using our app or services, please ensure that you have read and understood our license, terms of use, and copyright policy. By using our app or services, you agree to comply with all applicable laws and regulations, and to be bound by our license, terms of use, and copyright policy. If you do not agree with any part of these documents, you must not use our app or services. Please note that our license, terms of use, and copyright policy are subject to change without notice, and it is your responsibility to periodically review these documents for any updates or changes.</span>
+
+<br>
+<br>
+<br>
+<br>
+
 # Table of contents
 1. [Fonctionnalitées](#Fonctionnalitées)
     1. [Securisation](#Securisation)
