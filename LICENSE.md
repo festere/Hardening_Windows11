@@ -3,25 +3,32 @@ This License is also composed by the terms of use and Copyright
 </p>
 <br>
 <p>
-By exercising the Licensed Rights (defined below), You accept and agree to be bound by the terms and conditions of this Creative Commons To the extent this This License may be interpreted as a contract, You are granted the Licensed Rights in consideration of Your acceptance of these terms and conditions, and the Licensor grants You such rights in consideration of benefits the Licensor receives from making the Licensed Material available under these terms and conditions.
+By using any Novarex application(s) and/or sevice(s) you are exercising the Licensed Rights (defined below), accept and agree to be bound by the terms and conditions of this License, This License may be interpreted as a contract, You are granted the Licensed Rights in consideration of Your acceptance of these terms and conditions, and the Licensor grants You such rights in consideration of benefits the Licensor receives from making the Licensed Material available under these terms and conditions.
+<br>
+<br>
+If you do not agree with any part of these documents, you must not use any of our application(s) and/or sevice(s) If you do as it could result in legal action being taken against the individual or entity in question.
+<br>
+We also do not grant anyone to see any of part our code(s), database and access without a legal product key obtained officially but if for any reason our code is stolen or otherwise obtained, you should stop here and kindly inform us the procedure you used to gain access and do NOT go further. If you do as it could result in legal action being taken against the individual or entity in question.
 </p>
 <br>
 <br>
 <p>
 Copyright (c) 2023, festere/Web_Scraping, All rights reserved.
-Licensor: The owner of the copyrighted work (NAME). 
-Licensee: The user of the copyrighted work who obtained the application in a legal way on the official website of NAME or from an approved partener. 
-
-Use Case: How the copyrighted work can be used.
-
-Term: The copyright does not have an expiration date and is subject to change without notice.
-Territory: This copyrigh is working worldwide.
-Exclusivity: The licensee is the only one who can use the copyrighted work.
-Limitations: The copyrighted work can't be sublicensed or terminated.
-
-We do not want anyone to see our source code, but if for any reason our code is stolen or otherwise obtained, you should stop here.
-Please kindly inform us the procedure you used to gain access and do NOT go further as it could result in legal action being taken against the individual or entity in question.
+<br>
+<br>
+<ins>Licensor:</ins> The owner of the copyrighted works, Novarex.
+<br>
+<ins>Licensee:</ins> The user of the copyrighted work who obtained the application in a legal way on the official website of NAME or from an approved partener.
+<br>
+<ins>Term:</ins> The copyright does not have an expiration date and is subject to change without notice.
+<br>
+<ins>Territory:</ins> This copyrigh is working worldwide.
+<br>
+<ins>Exclusivity:</ins> The licensee is the only one who can use the copyrighted work.
+<br>
+<ins>Limitations:</ins> The copyrighted work can't be sublicensed or terminated.
 </p>
+
 <br>
 <br>
 
