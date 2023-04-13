@@ -13,7 +13,7 @@ We also do not grant anyone to see any of part our code(s), database and access 
 <br>
 <br>
 <p>
-Copyright (c) 2023, festere/Web_Scraping, All rights reserved.
+Copyright (c) 2023, Novarex, All rights reserved.
 <br>
 <br>
 <ins>Licensor:</ins> The owner of the copyrighted works, Novarex.
