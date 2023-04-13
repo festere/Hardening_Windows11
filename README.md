@@ -4,10 +4,11 @@
 <br>
 
 # Table of contents
-- [Table of contents](#table-of-contents)
-- [Disclaimer:](#disclaimer)
-- [Fonctionnalitées:](#fonctionnalitées)
-- [Etapes:](#etapes)
+1. [Disclaimer](#Disclaimer)
+2. [Fonctionnalitées](#Fonctionnalitées)
+    1. [Securisation](#Securisation)
+    2. [Optimisation](#Optimisation)
+3. [Etapes](#Etapes)
    
 <br>
 <br>
