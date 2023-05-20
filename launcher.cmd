@@ -1,6 +1,6 @@
 @echo off
 echo Veillez a bien prendre en compte les informations suivantes :
-echo - Un point de restoration sera cree sous le nom de [101m"RestorePointBeforeHardening"[0m.
+echo - Un point de restquration sera cree sous le nom de [101m"RestorePointBeforeHardening"[0m.
 echo[
 
 echo - Le programme va modifier les permissions/parametre/autorisation/... de certains fichiers/dossiers/registres/services/... de votre ordinateur (plus d'informations dans le fichier "README.md")
