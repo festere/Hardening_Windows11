@@ -434,7 +434,6 @@ function ApplicationDisabling {
     reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\explorer\DisallowRun" /f
 
     $ApplicationsDisabling = @(
-        "windows store.exe",
         "bing.exe",
         "messages.exe",
         "solitaire collection.exe",
@@ -633,10 +632,6 @@ function TLS_SSLTweak{
 
     # Desactiver le telechargement des pilotes d'imprimantes via HTTP
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows NT\Printers" -Name DisableWebPnPDownload -Value 1
-
-    # Desactiver l'acces au Windows Store
-    reg add "HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Explorer" /f
-    Set-ItemProperty -Path "Registry::HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Explorer" -Name NoUseStoreOpenWith -Value 1
 
     # Desactiver le telechargement a partir d'Internet pour les Assistants Publication de sites Web et Commande en ligne via Internet
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoWebServices -Value 1
