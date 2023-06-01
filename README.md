@@ -196,7 +196,6 @@ aux réseaux partagés par les contacts et aux points d'accès offrant des servi
 - [x] Activation de la règle Désactiver l'impression via HTTP
 - [x] Activation de la règle Désactiver le téléchargement des pilotes d'imprimantes via HTTP
 - [x] Activation de la règle Désactiver le service d'association de fichier Internet
-- [x] Activation de la règle Désactiver l'accès au Windows Store
 - [x] Activation de la règle Désactiver le téléchargement à partir d'Internet pour les Assistants Publication de sites Web et Commande en ligne via Internet
 - [x] Activation de la règle Désactiver l'option Commander des photos de la Gestion des images
 - [x] Activation de la règle Désactiver l'option Publier sur le Web de la Gestion des fichiers
