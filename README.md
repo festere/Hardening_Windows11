@@ -25,14 +25,14 @@
 <br>
 
 # <a name="Description">Description:</a>
-This tool harden Windows 10 and 11 by improving the security and optimising it.
+This tool harden Windows 10 and 11 by improving the security, anonymity and by updating and optimising some drivers.
 
 <br>
 <br>
 <br>
 <br>
 
-# <a name="Fonctionnalitées">Fonctionnalitées:</a>
+# <a name="Functionalities">Functionalities:</a>
 1. <a name="Security">Security:</a>
 - [x] Restore point creation
 - [x] Retain or remove local user administrator rights
