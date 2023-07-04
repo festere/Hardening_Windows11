@@ -36,7 +36,13 @@ This tool harden Windows 10 and 11 by improving the security and optimising it.
 1. <a name="Security">Security:</a>
 
 2. <a name="Optimisation">Optimisation:</a>
-
+- [x] Deleting temporary files
+- [x] Installation/update of Microsoft.dotNetFramework
+- [x] Install/update Microsoft Visual C++ 2022 X64 Minimum Runtime - 14.34.31931
+- [x] Install/update Microsoft Windows Desktop Runtime - 6.0.14 (x64)
+- [x] Microsoft Windows Desktop Runtime installation/update - 7.0.3 (x64)
+- [x] Microsoft DirectX installation/update
+      
 <br>
 <br>
 <br>
