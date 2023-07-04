@@ -34,6 +34,7 @@ This tool harden Windows 10 and 11 by improving the security and optimising it.
 
 # <a name="Fonctionnalitées">Fonctionnalitées:</a>
 1. <a name="Security">Security:</a>
+
 2. <a name="Optimisation">Optimisation:</a>
 
 <br>
@@ -42,5 +43,5 @@ This tool harden Windows 10 and 11 by improving the security and optimising it.
 <br>
 
 # <a name="Installation">Installation:</a>
-2. Download the app
-6. Start the tool: ```launcher.cmd```
+1. Download the app
+2. Start the tool: ```launcher.cmd```
