@@ -1,37 +1,25 @@
 @echo off
-echo Veillez a bien prendre en compte les informations suivantes :
-echo - Un point de restauration sera cree sous le nom de [101m"RestorePointBeforeHardening"[0m.
+echo Please be sure to take the following information into account:
 echo[
 
-echo - Le programme va modifier les permissions/parametre/autorisation/... de certains fichiers/dossiers/registres/services/... de votre ordinateur (plus d'informations dans le fichier "README.md")
+echo - A restore point will be created under the name [101m"WHOTRestorePoint"[0m.
+echo - The program will modify the permissions/settings/authorizations... of certain files/folders/registries/services... on your computer (more information in the [101m"README.md"[0m file).
+echo - If the tool crashes, [101mNever[0m restart it and use the restore point created at the beginning of the program.
+echo - Close [101mALL[0m programs before running the tool.
 echo[
-
-echo - Le programme peut afficher des messages d'erreurs, ne pas les prendre en compte (sauf si le programme s'arrete).
-echo[
-
-echo - Le programme peut prendre du temps a s'executer, ne pas fermer le programme avant la fin [101mTOTALE[0m de l'execution.
-echo[
-
-echo - Ne [101mJAMAIS[0m relancer le programme meme si il s'est arrete, cela peut entrainer des problemes (utiliser le point de restauration cree au debut du programme).
-echo[
-
-echo - Fermez [101mTOUS[0m les programmes avant de lancer le programme.
-echo[
-    
-echo - Ne [101mJAMAIS[0m cliquer sur aucun bouton pendant l'execution du programme meme si propose (toutes les actions sont automatiques).
-
 
 @echo off
-REM  :: Analyse les permissions
+
+REM  :: Analyze of the permissions
     IF "%PROCESSOR_ARCHITECTURE%" EQU "amd64" (
 >nul 2>&1 "%SYSTEMROOT%\SysWOW64\cacls.exe" "%SYSTEMROOT%\SysWOW64\config\system"
 ) ELSE (
 >nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
 )
 
-REM :: Si une erreur est detecte les autorisations admin sertont refusees
+REM :: If an error is detected admin permissions will be denied
 if '%errorlevel%' NEQ '0' (
-    echo Demande des droits administrateurs...
+    echo Requesting administrator rights...
     goto UACPrompt
 ) else ( goto gotAdmin )
 
@@ -51,10 +39,10 @@ if '%errorlevel%' NEQ '0' (
 @echo off
 setlocal
 :PROMPT
-SET /P AREYOUSURE=Etes vous sur de lancer le programme (Y/N)? 
+SET /P AREYOUSURE=Are you sure you want to run the program? (Y/N)? 
 IF /I "%AREYOUSURE%" NEQ "Y" OR "y" GOTO END
 
-echo Lancement du programme
+echo Launch WHOT
 
 ::#######################################################################
 ::#######################################################################

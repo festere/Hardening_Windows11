@@ -1,131 +1,88 @@
 ##########################################################################################
-# Demarage du script
+#Starting the tool
 ##########################################################################################
 
-
-#Nom de la fenetre
+#Window Name
 $Host.UI.RawUI.WindowTitle = "Hardening_Windows $([char]0x00A9)" 
 vssadmin delete shadows /all /quiet | Out-Null
 
-
-#Creation d'un point de restauration
+#Creating a restore point
 Enable-ComputerRestore -Drive "C:\"
 Checkpoint-Computer -Description "RestorePointBeforeHardening"
 
-##########################################################################################
-# Configuration de la suppression des droits d'administrateur pour l'utilisateur local
-##########################################################################################
-$answer = Read-Host "Voulez-vous supprimer les droits d'administrateur pour l'utilisateur local ? (Y/N)"
-if ($answer -eq "Y" -or $answer -eq "y") {
-    Write-Host "Suppression des droits d'administrateur pour l'utilisateur local..." -ForegroundColor Yellow
-    reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\CredUI" /f
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\CredUI" -Name EnumerateAdministrators -Value 0
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name LocalAccountTokenFilterPolicy -Value 0
-    Write-Host "Les droits d'administrateur pour l'utilisateur local ont ete supprimes" -ForegroundColor Green
-} else {
-    Write-Host "Les droits d'administrateur pour l'utilisateur local ne seront pas supprimes." -ForegroundColor Green
-}
 
 ##########################################################################################
-# Parametrage de Windows Defender
-##########################################################################################
-Write-Host "Le parametrage de Windows Defender commence..." -ForegroundColor Yellow
+#Setting up Windows Defender
 
-#Set Directory to PSScriptRoot
-if ((Get-Location).Path -NE $PSScriptRoot) { Set-Location $PSScriptRoot }
-
-Write-Host "Enabling Windows Defender Features..."
 #https://www.powershellgallery.com/packages/WindowsDefender_InternalEvaluationSetting
 #https://social.technet.microsoft.com/wiki/contents/articles/52251.manage-windows-defender-using-powershell.aspx
 #https://docs.microsoft.com/en-us/powershell/module/defender/set-mppreference?view=windowsserver2019-ps
-#Enable real-time monitoring
-Write-Host " -Enabling real-time monitoring"
+#https://docs.microsoft.com/en-us/windows/security/threat-protection/microsoft-defender-atp/enable-attack-surface-reduction
+#https://docs.microsoft.com/en-us/windows/security/threat-protection/microsoft-defender-atp/attack-surface-reduction
+##########################################################################################
+Write-Host "Windows Defender setup begins..." -ForegroundColor Yellow
+
+if ((Get-Location).Path -NE $PSScriptRoot) { Set-Location $PSScriptRoot } #Set Directory to PSScriptRoot
+
+Write-Host "- Enabling real-time monitoring"
 Set-MpPreference -DisableRealtimeMonitoring $false
-#Enable cloud-deliveredprotection
-#Enable sample submission
-Write-Host " -Disabling sample submission"
+Write-Host "- Disabling sample submission"
 Set-MpPreference -SubmitSamplesConsent Never
-#Enable checking signatures before scanning
-Write-Host " -Enabling checking signatures before scanning"
+Write-Host "- Enabling checking signatures before scanning"
 Set-MpPreference -CheckForSignaturesBeforeRunningScan 1
-#Enable behavior monitoring
-Write-Host " -Enabling behavior monitoring"
+Write-Host "- Enabling behavior monitoring"
 Set-MpPreference -DisableBehaviorMonitoring $false
-#Enable IOAV protection
-Write-Host " -Enabling IOAV protection"
+Write-Host "- Enabling IOAV protection"
 Set-MpPreference -DisableIOAVProtection $false
-#Enable script scanning
-Write-Host " -Enabling script scanning"
+Write-Host "- Enabling script scanning"
 Set-MpPreference -DisableScriptScanning $false
-#Enable removable drive scanning
-Write-Host " -Enabling removable drive scanning"
+Write-Host "- Enabling removable drive scanning"
 Set-MpPreference -DisableRemovableDriveScanning $false
-#Enable Block at first sight
-Write-Host " -Enabling Block at first sight"
+Write-Host "- Enabling Block at first sight"
 Set-MpPreference -DisableBlockAtFirstSeen $false
-#Enable potentially unwanted apps
-Write-Host " -Enabling potentially unwanted apps"
+Write-Host "- Enabling potentially unwanted apps"
 Set-MpPreference -PUAProtection 1
-#Enable archive scanning
-Write-Host " -Enabling archive scanning"
+Write-Host "- Enabling archive scanning"
 Set-MpPreference -DisableArchiveScanning $false
-#Enable email scanning
-Write-Host " -Enabling email scanning"
+Write-Host "- Enabling email scanning"
 Set-MpPreference -DisableEmailScanning $false
-#Enable File Hash Computation
-Write-Host " -Enabling File Hash Computation"
+Write-Host "- Enabling File Hash Computation"
 Set-MpPreference -EnableFileHashComputation $true
-#Enable Intrusion Prevention System
-Write-Host " -Enabling Intrusion Prevention System"
+Write-Host "- Enabling Intrusion Prevention System"
 Set-MpPreference -DisableIntrusionPreventionSystem $false
-#Enable TLS Parcing
-Write-Host " -Enabling TLS Parsing"
+Write-Host "- Enabling TLS Parsing"
 Set-MpPreference -DisableTlsParsing $false
-#Enable SSH Parcing
-Write-Host " -Enabling SSH Parsing"
+Write-Host "- Enabling SSH Parsing"
 Set-MpPreference -DisableSshParsing $false
-#Enable DNS Parcing
-Write-Host " -Enabling DNS Parsing"
+Write-Host "- Enabling DNS Parsing"
 Set-MpPreference -DisableDnsParsing $false
 Set-MpPreference -DisableDnsOverTcpParsing $false
-#Enable DNS Sinkhole 
-Write-Host " -Enabling DNS Sinkhole"
+Write-Host "- Enabling DNS Sinkhole"
 Set-MpPreference -EnableDnsSinkhole $true
-#Enable Controlled Folder Access and setting to block mode
-Write-Host " -Enabling Controlled Folder Access and setting to block mode"
+Write-Host "- Enabling Controlled Folder Access and setting to block mode"
 Set-MpPreference -EnableControlledFolderAccess Enabled
-#Enable Network Protection and setting to block mode
-Write-Host " -Enabling Network Protection and setting to block mode"
+Write-Host "- Enabling Network Protection and setting to block mode"
 Set-MpPreference -EnableNetworkProtection Enabled
-#Enable Sandboxing for Windows Defender
-Write-Host " -Enabling Sandboxing for Windows Defender"
+Write-Host "- Enabling Sandboxing for Windows Defender"
 setx /M MP_FORCE_USE_SANDBOX 1 | Out-Null
-#Set cloud block level to 'High'
-Write-Host " -Setting cloud block level to 'High'"
+Write-Host "- Setting cloud block level to 'High'"
 Set-MpPreference -CloudBlockLevel High
-#Set cloud block timeout to 1 minute
-Write-Host " -Setting cloud block timeout to 1 minute"
+Write-Host "- Setting cloud block timeout to 1 minute"
 Set-MpPreference -CloudExtendedTimeout 50
-#Schedule signature updates every 8 hours
-Write-Host " -Scheduling signature updates every 8 hours"
+Write-Host "- Scheduling signature updates every 8 hours"
 Set-MpPreference -SignatureUpdateInterval 8
 
-Write-Host "Disabling Account Prompts"
-# Dismiss Microsoft Defender offer in the Windows Security about signing in Microsoft account
-If (!(Test-Path -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Security Health\State\AccountProtection_MicrosoftAccount_Disconnected")) {
-    
+Write-Host "Disabling Account Prompts" #Dismiss Microsoft Defender offer in the Windows Security about signing in Microsoft account
+If (!(Test-Path -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Security Health\State\AccountProtection_MicrosoftAccount_Disconnected")) { 
 }Else {
     New-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Security Health\State" -Name "AccountProtection_MicrosoftAccount_Disconnected" -PropertyType "DWORD" -Value "1" -Force
 }
 
 Write-Host "Enabling Cloud-delivered Protections"
-#Enable Cloud-delivered Protections
 Set-MpPreference -MAPSReporting Advanced
 Set-MpPreference -SubmitSamplesConsent SendAllSamples
 
 Write-Host "Enabling... Windows Defender Attack Surface Reduction Rules"
-#https://docs.microsoft.com/en-us/windows/security/threat-protection/microsoft-defender-atp/enable-attack-surface-reduction
-#https://docs.microsoft.com/en-us/windows/security/threat-protection/microsoft-defender-atp/attack-surface-reduction
 Write-Host " -Block executable content from email client and webmail"
 Add-MpPreference -AttackSurfaceReductionRules_Ids BE9BA2D9-53EA-4CDC-84E5-9B1EEEE46550 -AttackSurfaceReductionRules_Actions Enabled
 Write-Host " -Block all Office applications from creating child processes"
@@ -158,15 +115,14 @@ Write-Host " -Use advanced protection against ransomware"
 Add-MpPreference -AttackSurfaceReductionRules_Ids c1db55ab-c21a-4637-bb3f-a12568109d35 -AttackSurfaceReductionRules_Actions Enabled
 
 Write-Host "Printting Current Windows Defender Configuration"
-# Print Historic Detections
 Get-MpComputerStatus ; Get-MpPreference ; Get-MpThreat ; Get-MpThreatDetection
 
-Write-Host "Windows Defender a ete optimiser avec succes !" -ForegroundColor Green
+Write-Host "Windows Defender has been optimized successfully!" -ForegroundColor Green
 
 ############################################################################################################
-# Optimize Windows 
+#Optimizing Windows 
 ############################################################################################################
-Write-Host "L'optimisation commence..." -ForegroundColor Yellow
+Write-Host "Windows optimization begins..." -ForegroundColor Yellow
 
 
 function WindowsTweaks_Services {
@@ -236,20 +192,20 @@ function WindowsTweaks_Services {
     "OneSyncSvc_184354",
     "MapsBroker")
     foreach ($serviceDisable in $servicesDisable){
-        $StopService = Get-Service -Name $serviceDisable -ErrorAction SilentlyContinue #obtain the service object
+        $StopService = Get-Service -Name $serviceDisable -ErrorAction SilentlyContinue #Obtain the service object
 
-        if ($serviceDisable.Length -gt 0) { #check if the service exists
+        if ($serviceDisable.Length -gt 0) { #Check if the service exists
 
-            if ($StopService.Status -ne 'Running'){ #check if the service is running
+            if ($StopService.Status -ne 'Running'){ #Check if the service is running
             Stop-Service $serviceDisable
             Set-Service $serviceDisable -StartupType Disabled
             }
             else{
-                Write-Host "Le service $serviceDisable est deja desactive"
+                Write-Host "The service $serviceDisable is already disabled"
             }
         }
        else {
-        Write-Host "Le service $serviceDisable n'existe pas"
+        Write-Host "The service $serviceDisable does not exist"
         }
     }
 
@@ -260,58 +216,52 @@ function WindowsTweaks_Services {
         "Netlogon",
         "MpsSvc")
     foreach ($serviceEnable in $servicesEnable){
-        $StartService = Get-Service -Name $serviceEnable -ErrorAction SilentlyContinue #obtain the service object
+        $StartService = Get-Service -Name $serviceEnable -ErrorAction SilentlyContinue #Obtain the service object
 
-        if ($serviceDisable.Length -gt 0) { #check if the service exists
+        if ($serviceDisable.Length -gt 0) { #Check if the service exists
 
-            if ($StartService.Status -ne 'Stopped'){ #check if the service is stopped
+            if ($StartService.Status -ne 'Stopped'){ #Check if the service is stopped
             Set-Service $serviceEnable -StartupType Automatic
             }
             else{
-                Write-Host "Le service $serviceDisable est deja active"
+                Write-Host "The service $serviceDisable is already active"
             }
         }
         else {
-        Write-Host "Le service $serviceDisable n'existe pas"
+        Write-Host "The service $serviceDisable does not exist"
         }
     }
 }
 
 function WindowsTweaks{
-    # Interdire Kerberos d'utiliser DES ou RC4
+    #Disallow Kerberos from using DES or RC4
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Kerberos\Parameters" /v SupportedEncryptionTypes /t REG_DWORD /d 2147483640 /f
-
-    # Encrypter et signer le trafique sortant par cannal securise si possible
+    #Encrypt and sign outgoing traffic over secure channel if possible
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Netlogon\Parameters" /v SealSecureChannel /t REG_DWORD /d 1 /f
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Netlogon\Parameters" /v SignSecureChannel /t REG_DWORD /d 1 /f
-
-    # Activer l'ecran intelligent (SmartScreen)
+    #Activate the intelligent screen (SmartScreen)
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" /v EnableSmartScreen /t REG_DWORD /d 1 /f
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" /v ShellSmartScreenLevel /t REG_SZ /d Block /f
-
-    # Active le "DontDisplayNetworkSelectionUI"
+    #Activate "DontDisplayNetworkSelectionUI"
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" /v DontDisplayNetworkSelectionUI /t REG_DWORD /d 1 /f
-
-    # Decouvrir les extentions et fichier cache
+    #Discover extensions and hidden files
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "HideFileExt" /t REG_DWORD /d 0 /f
     reg add "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "HideFileExt" /t REG_DWORD /d 0 /f
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "Hidden" /t REG_DWORD /d 1 /f
     reg add "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "Hidden" /t REG_DWORD /d 1 /f
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowSuperHidden" /t REG_DWORD /d 1 /f
     reg add "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowSuperHidden" /t REG_DWORD /d 1 /f
-
-    # Desactivation de la lecture automatique depuis tout les disques
+    #Disable autoplay from all disks
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Explorer" /v NoAutoplayfornonVolume /t REG_DWORD /d 1 /f
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\policies\Explorer" /v NoDriveTypeAutoRun /t REG_DWORD /d 255 /f
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v NoAutorun /t REG_DWORD /d 1 /f
-
-    # Bloque l'optimisation de telechargement depuis d'autres appareils du reseau
+    #Blocks download optimization from other devices on the network
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" /v DODownloadMode /t REG_DWORD /d 0 /f
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config\" /v DODownloadMode /t REG_DWORD /d 0 /f
 }
 
 function WindowsTweaks_Registry{
-    # MarkC Mouse Acceleration Fix
+    #MarkC Mouse Acceleration Fix
     Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "SmoothMouseXCurve" ([byte[]](0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, 0xCC, 0x0C, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x80, 0x99, 0x19, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x66, 0x26,
@@ -348,18 +298,13 @@ function WindowsTweaks_Tasks{
     Get-ScheduledTask -TaskPath "\Microsoft\Windows\Customer Experience Improvement Program\" | Disable-ScheduledTask -ErrorAction SilentlyContinue
     schtasks /change /TN "Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser" /DISABLE
     schtasks /change /TN "Microsoft\Windows\Application Experience\StartupAppTask" /DISABLE
-
     schtasks /change /TN "Microsoft\Windows\Autochk\Proxy" /DISABLE
-
     schtasks /change /TN "Microsoft\Windows\Customer Experience Improvement Program\Consolidator" /DISABLE
     schtasks /change /TN "Microsoft\Windows\Customer Experience Improvement Program\KernelCeipTask" /DISABLE
     schtasks /change /TN "Microsoft\Windows\Customer Experience Improvement Program\Uploader" /DISABLE
     schtasks /change /TN "Microsoft\Windows\Customer Experience Improvement Program\UsbCeip" /DISABLE
-
     schtasks /change /TN "Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnoticDataCollector" /DISABLE
-
     schtasks /change /TN "Microsoft\Windows\Feedback\Siuf\DmClient" /DISABLE
-
     schtasks /change /TN "Microsoft\Windows\WPD\SqmUpload_S-1-5-21-3244633361-4016055161-2943779436-1000" /DISABLE
 }
 
@@ -383,25 +328,6 @@ function WindowsTweaks_Index{
     foreach ($drive in $drives) {
         Get-WmiObject -Class Win32_Volume -Filter "DriveLetter='$drive'" | Set-WmiInstance -Arguments @{IndexingEnabled=$False} | Out-Null
     }
-}
-                
-function SophiaScript{
-    if($WindowsVersion -match "Microsoft Windows 11") {
-        Start-BitsTransfer -Source "https://github.com/farag2/Sophia-Script-for-Windows/releases/download/6.3.2/Sophia.Script.for.Windows.11.v6.3.2.zip" -Destination $env:temp\Sophia.zip
-        Expand-Archive $env:temp\Sophia.zip $env:temp -force
-        Move-Item -Path $env:temp\"Sophia_Script*" -Destination $ScriptFolder\Sophia_Script\
-    }
-    else { 
-        Write-Host "Can't start SophiaScript"
-    }
-    Powershell.exe -executionpolicy Bypass $ScriptFolder\Sophia_Script\Sophia.ps1
-}
-
-function ooShutup{
-    Start-BitsTransfer -Source "https://raw.githubusercontent.com/Marvin700/Windows_Optimisation_Pack/main/config/ooshutup10.cfg" -Destination "$ScriptFolder\ooshutup10.cfg"
-    Start-BitsTransfer -Source "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe" -Destination $ScriptFolder\OOSU10.exe
-    Set-Location $ScriptFolder
-    .\OOSU10.exe ooshutup10.cfg /quiet
 }
 
 function WindowsCleanup{
@@ -499,277 +425,184 @@ function ServiceAllow {
 }
 
 function TLS_SSLTweak{
-    # Desactiver basculer le contrôle de l'utilisateur sur les versions d’evaluation Insider
+    #Disable toggle user control on Insider preview builds
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\PreviewBuilds" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\PreviewBuilds" -Name AllowBuildPreview -Value 0
-
-    # Ne pas afficher les notifications de commentaire
+    #Disable comment notification
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\DataCollection" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\DataCollection" -Name DoNotShowFeedbackNotifications -Value 1
-
-    # Desactiver l’Inventory Collector
+    #Disable the Inventory Collector
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\AppCompat" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\AppCompat" -Name DisableInventory -Value 1
-
-    # Desactiver les experiences consommateur de Microsoft
+    #Disable Microsoft Consumer Experiences
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\CloudContent" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\CloudContent" -Name DisableWindowsConsumerFeatures -Value 1
-
-    # Ne pas afficher les conseils de Windows
+    #Do not show Windows tips
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\CloudContent" -Name DisableSoftLanding -Value 1
-
-    # Ne pas autorise le developpement d’applications du Windows Store et leur installation depuis un environnement de developpement integre
-    reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\Appx" /f
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\Appx" -Name AllowDevelopmentWithoutDevLicense -Value 0
-
-    # Bloquer une application Windows a partager des donnees d'applications entre les utilisateurs
+    #Block a Windows application from sharing application data between users
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\CurrentVersion\AppModel\StateManager" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\CurrentVersion\AppModel\StateManager" -Name AllowSharedLocalAppData -Value 0
-
-    # Desactiver l’emplacement
+    #Disable location
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\LocationAndSensors" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\LocationAndSensors" -Name DisableLocation -Value 1
-
-    # Desactiver le script d’emplacement
+    #Disable location script
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\LocationAndSensors" -Name DisableLocationScripting -Value 1
-
-    # Autoriser les comptes Microsoft a etre facultatifs
+    #Allow Microsoft accounts to be optional
     reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name MSAOptional -Value 1
-
-    # Bloquer le lancement des applications du Windows Store avec acces a l'API d'execution Windows a partir du contenu heberge
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name BlockHostedAppAccessWinRT -Value 1
-
-    # Bloquer l'authentification de base
+    #Block basic authentication
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WinRM\Service" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WinRM\Service" -Name AllowBasic -Value 0
-
-    # Bloquer le trafic non chiffre
+    #Block unencrypted traffic
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WinRM\Service" -Name AllowUnencryptedTraffic -Value 0
-
-    # Ne pas autoriser l'authentification Digest
+    #Do not allow Digest authentication
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WinRM\Service" -Name AllowDigest -Value 1
-
-    # Ne pas autoriser l'authentification par negociation
+    #Do not allow negotiation authentication
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WinRM\Service" -Name AllowNegotiate -Value 1
-
-    # Desactiver la gestion de serveurs a distance via WinRM
+    #Disable remote server management via WinRM
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WinRM\Service" -Name AllowAutoConfig -Value 0
-
-    # Desactiver l'ecouteur HTTP de compatibilite
+    #Disable HTTP compatibility listener
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WinRM\Service" -Name HttpCompatibilityListener -Value 0
-
-    # Desactiver l'ecouteur HTTPS de compatibilite
+    #Disable HTTPS Compatibility Listener
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WinRM\Service" -Name HttpsCompatibilityListener -Value 0
-
-    # Ne pas autoriser WinRM a stocker des informations d'identification RunAs
+    #Disable WinRM to store RunAs credentials
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WinRM\Service" -Name DisableRunAs -Value 1
-
-    # Autoriser l'authentification Kerberos
+    #Enable Kerberos authentication
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WinRM\Client" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WinRM\Client" -Name AllowKerberos -Value 0
-
-    # Desactiver l'authentification CredSSP
+    #Disable CredSSP Authentication
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WinRM\Client" -Name AllowCredSSP -Value 0
-
-    # Generer des audits de securite
+    #Generate security audits
     reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit" -Name ProcessCreationIncludeCmdLine_Enabled -Value 1
-
-    # Desactiver la mise a jour automatique des certificats racines
+    #Disable automatic root certificate update
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\SystemCertificates\AuthRoot" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\SystemCertificates\AuthRoot" -Name DisableRootAutoUpdate -Value 1
-
-    # Desactiver les liens « Events.asp » de l'observateur d'evenements
+    #Disable "Events.asp" links from the Event Viewer
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\EventViewer" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\EventViewer" -Name MicrosoftEventVwrDisableLinks -Value 1
-
-    # Desactiver le contenu « Le saviez-vous ? » du Centre d'aide et de support
+    #Disable “Did you know?” content from Help and Support Center
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\PCHealth\HelpSvc" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\PCHealth\HelpSvc" -Name Headlines -Value 1
-
-    # Desactiver la recherche dans la Base de connaissances Microsoft du Centre d'aide et de support
+    #Disable Microsoft Knowledge Base search in Help and Support Center
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\PCHealth\HelpSvc" -Name MicrosoftKBSearch -Value 1
-
-    # Desactiver l'Assistant Connexion Internet si l'adresse URL de connexion fait reference a Microsoft.com
+    #Disable Internet Connection Assistant if the connection URL refers to Microsoft.com
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\Internet Connection Wizard" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\Internet Connection Wizard" -Name ExitOnMSICW -Value 1
-
-    # Desactiver l'inscription si l'adresse URL de connexion fait reference a Microsoft.com
+    #Disable registration if sign-in URL refers to Microsoft.com
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\Registration Wizard Control" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\Registration Wizard Control" -Name NoRegistration -Value 1
-
-    # Desactiver l'acces a toutes les fonctionnalites Windows Update
-    reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WindowsUpdate" /f
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WindowsUpdate" -Name DisableWindowsUpdateAccess -Value 1
-
-    # Desactiver les mises a jour des fichiers de contenu de l'Assistant Recherche
+    #Disable Search Assistant content file updates
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\SearchCompanion" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\SearchCompanion" -Name DisableContentFileUpdates -Value 1
-
-    # Desactiver le service d'association de fichier Internet
+    #Disable Internet File Association Service
     reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /f
     Set-ItemProperty -Path "Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoInternetOpenWith -Value 1
-
-    # Desactiver les tests actifs de l'Indicateur de statut de connectivite reseau Windows
+    #Disable active Windows Network Connectivity Status Indicator tests
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\NetworkConnectivityStatusIndicator" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\NetworkConnectivityStatusIndicator" -Name NoActiveProbe -Value 1
-
-    # Desactiver les evaluations de l’aide
+    #Disable Help Ratings
     reg add "HKEY_CURRENT_USER\Software\Policies\Microsoft\Assistance\Client\1.0" /f
     Set-ItemProperty -Path "Registry::HKEY_CURRENT_USER\Software\Policies\Microsoft\Assistance\Client\1.0" -Name NoExplicitFeedback -Value 1
-
-    # Desactiver le programme d’amelioration de l’aide
+    #Disable the Help Enhancement Program
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\SQMClient\Windows" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\SQMClient\Windows" -Name CEIPEnable -Value 1
-
-    # Desactiver Windows Online
+    #Disable Windows Online
     Set-ItemProperty -Path "Registry::HKEY_CURRENT_USER\Software\Policies\Microsoft\Assistance\Client\1.0" -Name NoOnlineAssist -Value 1
-
-    # Desactivation impression via HTTP
+    #Disabling printing via HTTP
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows NT\Printers" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows NT\Printers" -Name DisableHTTPPrinting -Value 1
-
-    # Desactiver le telechargement des pilotes d'imprimantes via HTTP
+    #Disable downloading printer drivers via HTTP
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows NT\Printers" -Name DisableWebPnPDownload -Value 1
-
-    # Desactiver le telechargement a partir d'Internet pour les Assistants Publication de sites Web et Commande en ligne via Internet
+    #Disable Internet Downloading for Website Publishing and Online Ordering Wizards via the Internet
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoWebServices -Value 1
-
-    # Desactiver l'option Commander des photos de la Gestion des images
+    #Disable the Order Photos option from Image Management
     Set-ItemProperty -Path "Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoOnlinePrintsWizard -Value 1
-
-    # Desactiver l'option Publier sur le Web de la Gestion des fichiers
+    #Disable the Publish to Web option in File Management
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoPublishingWizard -Value 1
-
-    # Desactiver le Programme d'amelioration des services pour Windows Messenger
+    #Disable Windows Messenger Service Improvement Program
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Messenger\Client" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Messenger\Client" -Name CEIP -Value 1
-
-    # Desactiver le partage des donnees de personnalisation de l'ecriture manuscrite
+    #Disable sharing of handwriting customization data
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\TabletPC" /f
     reg add "HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\TabletPC" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\TabletPC" -Name PreventHandwritingDataSharing -Value 1
     Set-ItemProperty -Path "Registry::HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\TabletPC" -Name PreventHandwritingDataSharing -Value 1
-
-    # Desactiver le signalement d’erreurs de la reconnaissance de l’ecriture manuscrite
-    reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\HandwritingErrorReports" /f
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\HandwritingErrorReports" -Name PreventHandwritingErrorReports -Value 1
-
-    # Activer le niveau de securisation renforcee des jetons de liaison de canaux
+    #Enable enhanced security level for channel binding tokens
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WinRM\Service" -Name CBTHardeningLevelStatus -Value 1
-
-    # Empecher l’ordinateur de rejoindre un groupe residentiel
+    #Prevent the computer from joining a homegroup
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\HomeGroup" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\HomeGroup" -Name DisableHomeGroup -Value 1
-
-    # Exiger un chemin d’acces approuve pour une entree d’informations d’identification
+    #Require trusted path for credential entry
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\CredUI" -Name EnableSecureCredentialPrompting -Value 1
-
-    # Desactiver ou activer la sequence de touches de securite (SAS, Secure Attention Sequence)
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name SoftwareSASGeneration -Value 3 #Services et applications d'ergonomie
-
-    # Desactiver Rapport d'erreurs Windows
+    #Disable or enable the security key sequence (SAS, Secure Attention Sequence)
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name SoftwareSASGeneration -Value 3 #Ergonomics services and applications
+    #Disable Windows Error Reporting
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting" -Name Disabled -Value 1
-
-    # Desactiver Cortana
+    #Disable Cortana
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Windows Search" -Name AllowCortana -Value 0
-
-    # Desactiver la recherche et autoriser Cortana a utiliser l'emplacement
+    #Disable search and allow Cortana to use location
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Windows Search" -Name AllowSearchToUseLocation -Value 0
-
-    # Ne pas autoriser l'enregistrement des mots de passe
+    #Do not allow saving of passwords
     reg add "HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" /f
     Set-ItemProperty -Path "Registry::HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" -Name DisablePasswordSaving -Value 1
-
-    # Ne pas autoriser la redirection de lecteur
+    #Do not allow drive redirection
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" -Name fDisableCdm -Value 1
-
-    # Toujours demander le mot de passe a la connexion
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" -Name fPromptForPassword -Value 1
-
-    # Requerir des communications RPC securisees
+    #Require secure RPC communications
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services" -Name fEncryptRPCTraffic -Value 1
-
-    # Definir le comportement par defaut du programme Autorun
-    Set-ItemProperty -Path "Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoAutorun -Value 2 # Executer automatiquement les commandes Autorun
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoAutorun -Value 2 # Executer automatiquement les commandes Autorun
-
-    # Desactiver l’execution automatique
-    Set-ItemProperty -Path "Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoDriveTypeAutoRun -Value 181 # Lecteurs de CD-ROM et de supports amovibles
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoDriveTypeAutoRun -Value 181 # Lecteurs de CD-ROM et de supports amovibles
-
-    # Interdire l’execution automatique pour les peripheriques autres que ceux du volume
+    #Disable autorun for devices other than those in the volume
     Set-ItemProperty -Path "Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoAutoplayfornonVolume -Value 1
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name NoAutoplayfornonVolume -Value 1
-
-    # Rejoindre Microsoft MAPS (communaute en ligne de reponse aux menaces potentielles)
+    #Join Microsoft MAPS (Online Threat Response Community)
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows Defender\Spynet" /f
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows Defender\Spynet" -Name SpynetReporting -Value 2 # MAPS avance
-
-    # Analyser tous les fichiers et pieces jointes telecharges
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows Defender\Spynet" -Name SpynetReporting -Value 2
+    #Scan all downloaded files and attachments
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows Defender\Real-Time Protection" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows Defender\Real-Time Protection" -Name DisableIOAVProtection -Value 0
-
-    # Activer la protection en temps reel
+    #Enable real-time protection
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows Defender\Real-Time Protection" -Name DisableRealtimeMonitoring -Value 0
-
-    # Ne pas toujours installer des applications avec des droits eleves
+    #Do not always install applications with elevated rights
     reg add "HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Installer" /f
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\Installer" /f
     Set-ItemProperty -Path "Registry::HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Installer" -Name AlwaysInstallElevated -Value 0
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\Installer" -Name AlwaysInstallElevated -Value 0
-
-    # Configuration du service Mises a jour automatiques
+    #Configuring the Automatic Updates service
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WindowsUpdate\AU" /f
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name AUOptions -Value 3 # Telechargement automatique et notification des installations
-
-    # WDigest Authentication (disabling may require KB2871997)
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name AUOptions -Value 3 #Automatic download and installation notification
+    #WDigest Authentication (disabling may require KB2871997)
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" -Name UseLogonCredential -Value 0
-
-    # MSS: (DisableSavePassword) Prevent the dial-up password from being saved
+    #MSS: (DisableSavePassword) Prevent the dial-up password from being saved
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\RasMan\Parameters" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\RasMan\Parameters" -Name DisableSavePassword -Value 1
-
-    # MSS: (EnableICMPRedirect) Prevent ICMP redirects to override OSPF generated routes
+    #MSS: (EnableICMPRedirect) Prevent ICMP redirects to override OSPF generated routes
     reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip\Parameters" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip\Parameters" -Name EnableICMPRedirect -Value 0
-
-    # MSS: (Hidden) Hide Computer From the Browse List (not recommended except for highly secure environments)
+    #MSS: (Hidden) Hide Computer From the Browse List (not recommended except for highly secure environments)
     reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Lanmanserver\Parameters" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Lanmanserver\Parameters" -Name Hidden -Value 1
-
-    # MSS: (NoNameReleaseOnDemand) Allow the computer to ignore NetBIOS name release requests except from WINS servers
+    #MSS: (NoNameReleaseOnDemand) Allow the computer to ignore NetBIOS name release requests except from WINS servers
     reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Netbt\Parameters" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Netbt\Parameters" -Name NoNameReleaseOnDemand -Value 1
-
-    # MSS: (PerformRouterDiscovery) Prevent IRDP to detect and configure Default Gateway addresses (could lead to DoS)
+    #MSS: (PerformRouterDiscovery) Prevent IRDP to detect and configure Default Gateway addresses (could lead to DoS)
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip\Parameters" -Name PerformRouterDiscovery -Value 0
-
-    # MSS: (SafeDllSearchMode) Enable Safe DLL search mode (recommended)
+    #MSS: (SafeDllSearchMode) Enable Safe DLL search mode (recommended)
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager" -Name SafeDllSearchMode -Value 1
-
-    # MSS: (TcpMaxDataRetransmissions) How many times unacknowledged data is retransmitted (3 recommended, 5 is default)
+    #MSS: (TcpMaxDataRetransmissions) How many times unacknowledged data is retransmitted (3 recommended, 5 is default)
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip\Parameters" -Name TcpMaxDataRetransmissions -Value 3
-
-    # MSS: (TcpMaxDataRetransmissions IPv6) How many times unacknowledged data is retransmitted (3 recommended, 5 is default)
+    #MSS: (TcpMaxDataRetransmissions IPv6) How many times unacknowledged data is retransmitted (3 recommended, 5 is default)
     reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip6\Parameters" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip6\Parameters" -Name TcpMaxDataRetransmissions -Value 3
-
-    # MSS: (DisableIPSourceRouting) IP source routing protection level (protects against packet spoofing)
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip\Parameters" -Name DisableIPSourceRouting -Value 2 # Highest protection, source routing is completely disabled
-
-    # MSS: (DisableIPSourceRouting IPv6) IP source routing protection level (protects against packet spoofing)
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip6\Parameters" -Name DisableIPSourceRouting -Value 2 # Highest protection, source routing is completely disabled
-
-    # MSS: (KeepAliveTime) How often keep-alive packets are sent in milliseconds
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip\Parameters" -Name KeepAliveTime -Value 300000 # 300000 or 5 minutes (recommended)
-
-    #SSL 2.0 Desactivation (1.0 n'existe pas et 2.0 trop ancienne)
+    #MSS: (DisableIPSourceRouting) IP source routing protection level (protects against packet spoofing)
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip\Parameters" -Name DisableIPSourceRouting -Value 2 #Highest protection, source routing is completely disabled
+    #MSS: (DisableIPSourceRouting IPv6) IP source routing protection level (protects against packet spoofing)
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip6\Parameters" -Name DisableIPSourceRouting -Value 2 #Highest protection, source routing is completely disabled
+    #MSS: (KeepAliveTime) How often keep-alive packets are sent in milliseconds
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip\Parameters" -Name KeepAliveTime -Value 300000 #300000 or 5 minutes (recommended)
+    #Disable SSL 2.0
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0" /f
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0" /f /v Server /t REG_DWORD /d 1
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0" /f /v Client /t REG_DWORD /d 1
@@ -779,8 +612,7 @@ function TLS_SSLTweak{
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Client" -Name DisabledByDefault -Value 1
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Server" -Name Enabled -Value 0
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Server" -Name DisabledByDefault -Value 1
-
-    #SSL 3.0 Desactivation (remplace par le TLS)
+    #Disable SSL 3.0
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0" /f
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0" /f /v Server /t REG_DWORD /d 1
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0" /f /v Client /t REG_DWORD /d 1
@@ -790,8 +622,7 @@ function TLS_SSLTweak{
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Client" -Name DisabledByDefault -Value 1
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Server" -Name Enabled -Value 0
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Server" -Name DisabledByDefault -Value 1
-
-    #TLS 1.0 Desactivation (trop ancienne)
+    #Disable TLS 1.0
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0" /f
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0" /f /v Server /t REG_DWORD /d 1
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0" /f /v Client /t REG_DWORD /d 1
@@ -801,8 +632,7 @@ function TLS_SSLTweak{
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Client" -Name DisabledByDefault -Value 1
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server" -Name Enabled -Value 0
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server" -Name DisabledByDefault -Value 1
-
-    #TLS 1.1 Desactivation (trop ancienne)
+    #Disable TLS 1.1
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1" /f
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1" /f /v Server /t REG_DWORD /d 1
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1" /f /v Client /t REG_DWORD /d 1
@@ -812,8 +642,7 @@ function TLS_SSLTweak{
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client" -Name DisabledByDefault -Value 1
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server" -Name Enabled -Value 0
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server" -Name DisabledByDefault -Value 1
-
-    #TLS 1.2 Desactivation (trop ancienne)
+    #Disable TLS 1.2
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2" /f
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2" /f /v Server /t REG_DWORD /d 1
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2" /f /v Client /t REG_DWORD /d 1
@@ -823,8 +652,7 @@ function TLS_SSLTweak{
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client" -Name DisabledByDefault -Value 1
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server" -Name Enabled -Value 0
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server" -Name DisabledByDefault -Value 1
-
-    #TLS 1.3 Activation
+    #Disable TLS 1.3
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3" /f
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3" /f /v Server /t REG_DWORD /d 1
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3" /f /v Client /t REG_DWORD /d 1
@@ -834,163 +662,118 @@ function TLS_SSLTweak{
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3\Client" -Name DisabledByDefault -Value 0
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3\Server" -Name Enabled -Value 1
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3\Server" -Name DisabledByDefault -Value 0
-
-    # OCSP stapling
+    #OCSP stapling
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL" /v EnableOcspStaplingForSni /t REG_DWORD /d 1 /f
-    # Activation de l'authentification forte pour .NET Framework 3.5
+    #Enabling Strong Authentication for .NET Framework 3.5
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\.NETFramework\v2.0.50727" /v SchUseStrongCrypto /t REG_DWORD /d 1 /f
-    # Activation de l'authentification forte pour .NET Framework 4.0/4.5.x
+    #Enabling Strong Authentication for .NET Framework 4.0/4.5.x
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\.NETFramework\v4.0.30319" /v SchUseStrongCrypto /t REG_DWORD /d 1 /f
-    
-    # Empecher l’activation du diaporama de l’ecran de verrouillage
-    reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\Personalization" /f
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\Personalization" -Name NoLockScreenSlideshow -Value 1
-
-    # Empecher l’activation de l’appareil photo de l’ecran de verrouillage
+    #Prevent the lock screen camera from being activated
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\Personalization" -Name NoLockScreenCamera -Value 1
-
-    # Desactiver les services reseau pair a pair Microsoft
+    #Disable Microsoft Peer-to-Peer Network Services
     reg add "HKEY_LOCAL_MACHINE\Software\policies\Microsoft\Peernet" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\policies\Microsoft\Peernet" -Name Disabled -Value 1
-
-    # Desactiver la resolution de noms multidiffusion
+    #Disable multicast name resolution
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows NT\DNSClient" /f
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows NT\DNSClient" -Name EnableMulticast -Value 1 # (disable)
-
-    # Desactiver la resolution intelligente des noms multiresidents
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows NT\DNSClient" -Name EnableMulticast -Value 1
+    #Disable intelligent multihomed name resolution
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows NT\DNSClient" -Name DisableSmartNameResolution -Value 1
-
-    # Interdire l’installation et la configuration d’un pont reseau sur votre reseau de domaine DNS
+    #Disallow the installation and configuration of a network bridge on your DNS domain network
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\Network Connections" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\Network Connections" -Name NC_AllowNetBridge_NLA -Value 1 
-
-    # Desactiver le pilote des entrees/sorties du Mappeur de decouverte de la topologie de la couche de liaison
+    #Disable Link Layer Topology Discovery Mapper Input/Output Driver
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\LLTD" /f
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\LLTD" -Name EnableLLTDIO -Value 0 # (disable)
-
-    # Desactiver le pilote du repondeur (RSPNDR)
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\LLTD" -Name EnableRspndr -Value 0 # (disable)
-
-    # Interdire la connexion a des reseaux sans domaine en cas de connexion a un reseau authentifie par son domaine
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\LLTD" -Name EnableLLTDIO -Value 0
+    #Disable the responder driver (RSPNDR)
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\LLTD" -Name EnableRspndr -Value 0
+    #Disable connection to non-domain networks when connecting to a domain-authenticated network
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WcmSvc\GroupPolicy" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WcmSvc\GroupPolicy" -Name fBlockNonDomain -Value 1
-
-    # Ordre des suites de chiffrement SSL
+    #Order of SSL Cipher Suites
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Cryptography\Configuration\SSL\00010002" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Cryptography\Configuration\SSL\00010002" -Name Functions -Type REG_SZ -Value TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA256,TLS_RSA_WITH_AES_256_CBC_SHA,TLS_RSA_WITH_RC4_128_SHA,TLS_RSA_WITH_3DES_EDE_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P384,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA_P256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA_P384,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA_P256,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA_P384,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256_P256,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256_P256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384_P384,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384_P384,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA_P256,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA_P384,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA_P256,TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA_P384,TLS_DHE_DSS_WITH_AES_128_CBC_SHA256,TLS_DHE_DSS_WITH_AES_128_CBC_SHA,TLS_DHE_DSS_WITH_AES_256_CBC_SHA256,TLS_DHE_DSS_WITH_AES_256_CBC_SHA,TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA,TLS_RSA_WITH_RC4_128_MD5,SSL_CK_RC4_128_WITH_MD5,SSL_CK_DES_192_EDE3_CBC_WITH_MD5,TLS_RSA_WITH_NULL_SHA256,TLS_RSA_WITH_NULL_SHA
-
-    # Activer ISATAP
+    #Enable ISATAP
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\TCPIP\v6Transition" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\TCPIP\v6Transition" -Name ISATAP_State -Value Enabled
-
-    # Activer Teredo
+    #Activate Teredo
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\TCPIP\v6Transition" -Name Teredo_State -Value Client
-
-    # Activer l'IP-HTTPS
+    #Enable IP-HTTPS
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\TCPIP\v6Transition\IPHTTPS\IPHTTPSInterface" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\TCPIP\v6Transition\IPHTTPS\IPHTTPSInterface" -Name IPHTTPS_ClientState -Value 2
-
-    # Empecher Windows de se connecter automatiquement aux points d'acces ouverts suggeres, aux reseaux partages par les contacts et aux points d'acces offrant des services payants
+    #Prevent Windows from automatically connecting to suggested open hotspots, networks shared by contacts, and hotspots offering paid services
     reg add "HKEY_LOCAL_MACHINE\Software\Microsoft\wcmsvc\wifinetworkmanager\config" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\wcmsvc\wifinetworkmanager\config" -Name AutoConnectAllowedOEM -Value 0
-
-    # Desactiver les ouvertures de session invite non securisees
+    #Disable insecure guest logins
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\LanmanWorkstation" /f
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\LanmanWorkstation" -Name AllowInsecureGuestAuth -Value 0 # (disable)
-
-    # Interdire l'acces aux Assistants Windows Connect Now
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\LanmanWorkstation" -Name AllowInsecureGuestAuth -Value 0
+    #Block access to Windows Connect Now Assistants
     reg add "HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\WCN\UI" /f
     Set-ItemProperty -Path "Registry::HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\WCN\UI" -Name DisableWcnUi -Value 1
-
-    # Configuration des parametres sans fil a l'aide de Windows Connect Now
+    #Configuring Wireless Settings Using Windows Connect Now
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WCN\Registrars" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WCN\Registrars" -Name EnableRegistrars -Value 0
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WCN\Registrars" -Name DisableUPnPRegistrar -Value 0 # Desactiver la possibilite de configuration a l'aide de Windows Connect Now sur Ethernet (UPnP)
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WCN\Registrars" -Name DisableInBand802DOT11Registrar -Value 0 # Desactiver la possibilite de configuration a l'aide de Windows Connect Now (WCN) sur WLAN 802.11
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WCN\Registrars" -Name DisableFlashConfigRegistrar -Value 0 # Desactiver la possibilite de configuration a l'aide d'un lecteur Flash USB
-
-    # CD et DVD : refuser l'acces en execution
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WCN\Registrars" -Name DisableUPnPRegistrar -Value 0 #Disable the ability to configure using Windows Connect Now over Ethernet (UPnP)
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WCN\Registrars" -Name DisableInBand802DOT11Registrar -Value 0 #Disable the ability to configure using Windows Connect Now (WCN) on WLAN 802.11
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WCN\Registrars" -Name DisableFlashConfigRegistrar -Value 0 #Disable the ability to configure using a USB flash drive
+    #CD and DVD: deny execution access
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\RemovableStorageDevices\{53f56308-b6bf-11d0-94f2-00a0c91efb8b}" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\RemovableStorageDevices\{53f56308-b6bf-11d0-94f2-00a0c91efb8b}" -Name Deny_Execute -Value 1
-
-    # Lecteurs de disquettes : refuser l'acces en execution
+    #Floppy drives: deny execute access
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\RemovableStorageDevices\{53f56311-b6bf-11d0-94f2-00a0c91efb8b}" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\RemovableStorageDevices\{53f56311-b6bf-11d0-94f2-00a0c91efb8b}" -Name Deny_Execute -Value 1
-
-    # Disques amovibles : refuser l'acces en execution
+    #Removable disks: deny execution access
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\RemovableStorageDevices\{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\RemovableStorageDevices\{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}" -Name Deny_Execute -Value 1
-
-    # Lecteurs de bandes : refuser l'acces en execution
+    #Tape drives: deny execution access
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\RemovableStorageDevices\{53f5630b-b6bf-11d0-94f2-00a0c91efb8b}" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\RemovableStorageDevices\{53f5630b-b6bf-11d0-94f2-00a0c91efb8b}" -Name Deny_Execute -Value 1
-
-    # Activer l’authentification du client Mappeur de point de terminaison RPC
+    #Enable Client Authentication RPC Endpoint Mapper
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows NT\Rpc" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows NT\Rpc" -Name EnableAuthEpResolution -Value 1
-
-    # Limiter les clients RPC non authentifies
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows NT\Rpc" -Name RestrictRemoteClients -Value 1 # Authentifie
-
-    # Configurer l’assistance a distance sollicitee
+    #Limit unauthenticated RPC clients
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows NT\Rpc" -Name RestrictRemoteClients -Value 1 #Authenticate
+    #Configure requested remote assistance
     reg add "HKEY_LOCAL_MACHINE\Software\policies\Microsoft\Windows NT\Terminal Services" /f
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\policies\Microsoft\Windows NT\Terminal Services" -Name fAllowFullControl -Value 0 # Ne permettre aux conseillers que de voir l'ordinateur
-
-    # Demander un mot de passe lorsqu'un ordinateur sort de la veille (sur secteur)
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\policies\Microsoft\Windows NT\Terminal Services" -Name fAllowFullControl -Value 0 #Only allow advisors to see the computer
+    #Ask for password when computer wakes from sleep (on AC power)
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Power\PowerSettings\0e796bdb-100d-47d6-a2d5-f7d2daa51f51" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Power\PowerSettings\0e796bdb-100d-47d6-a2d5-f7d2daa51f51" -Name ACSettingIndex -Value 1
-
-    # Demander un mot de passe lorsqu'un ordinateur sort de la veille (sur batterie)
+    #Ask for password when computer wakes from sleep (on battery)
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Power\PowerSettings\0e796bdb-100d-47d6-a2d5-f7d2daa51f51" -Name DCSettingIndex -Value 1
-
-    # Ne pas autoriser les etats de veille (S1-S3) lorsque l'ordinateur est en veille (sur secteur)
+    #Do not allow sleep states (S1-S3) when the computer is sleeping (on AC power)
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Power\PowerSettings\abfc2519-3608-4c2a-94ea-171b0ed546ab" /f
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Power\PowerSettings\abfc2519-3608-4c2a-94ea-171b0ed546ab" -Name ACSettingIndex -Value 0 # (disable)
-
-    # Ne pas autoriser les etats de veille (S1-S3) lorsque l'ordinateur est en veille (sur batterie)
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Power\PowerSettings\abfc2519-3608-4c2a-94ea-171b0ed546ab" -Name DCSettingIndex -Value 0 # (disable)
-
-    # Strategie d'initialisation des pilotes de demarrage
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Power\PowerSettings\abfc2519-3608-4c2a-94ea-171b0ed546ab" -Name ACSettingIndex -Value 0 #disable
+    #Do not allow sleep states (S1-S3) when the computer is sleeping (on battery)
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Power\PowerSettings\abfc2519-3608-4c2a-94ea-171b0ed546ab" -Name DCSettingIndex -Value 0 #disable
+    #Boot Driver Initialization Strategy
     reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Policies\EarlyLaunch" /f
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Policies\EarlyLaunch" -Name DriverLoadPolicy -Value 1 # Bons et inconnus
-
-    # Enregistrer les evenements sans bloquer les polices non approuvees
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Policies\EarlyLaunch" -Name DriverLoadPolicy -Value 1 #Good and unknown
+    #Record events without blocking untrusted fonts
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\MitigationOptions" /f
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\MitigationOptions" -Name MitigationOptions_FontBocking -Value 3000000000000 # Enregistrer les evenements sans bloquer les polices non approuvees
-
-    # Ne pas afficher l'animation a la premiere connexion
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\MitigationOptions" -Name MitigationOptions_FontBocking -Value 3000000000000
+    #Do not show animation on first login
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System" -Name EnableFirstLogonAnimation -Value 0
-
-    # Ne pas afficher l'interface utilisateur de selection de reseau
+    #Do not show network selection UI
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\System" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\System" -Name DontDisplayNetworkSelectionUI -Value 1
-
-    # Ne pas enumerer les utilisateurs connectes sur les ordinateurs membres d'un domaine
+    #Do not list users logged in on domain member computers
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\System" -Name DontEnumerateConnectedUsers -Value 1
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\System" -Name EnumerateLocalUsers -Value 0
-
-    # Desactiver les notifications des applications sur l'ecran de verrouillage
+    #Disable app notifications on lock screen
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\System" -Name DisableLockScreenAppNotifications -Value 1
-
-    # Desactiver l'ID de publicite
+    #Disable Advertising ID
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\AdvertisingInfo" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\AdvertisingInfo" -Name DisabledByGroupPolicy -Value 1
-
-    # Activer la securite basee sur la virtualisation
+    #Enable Virtualization-Based Security
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" /f
     Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" -Name EnableVirtualizationBasedSecurity -Value 1
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" -Name RequirePlatformSecurityFeatures -Value 3 # Demarrage securise et protection contre les DMA
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" -Name HypervisorEnforcedCodeIntegrity -Value 1 # Protection basee sur la virtualisation de l'integrite du code active avec le verrouillage UEFI
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" -Name LsaCfgFlags -Value 1 # Configuration Credential Guard active avec le verrouillage UEFI
-    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" -Name ConfigureSystemGuardLaunch -Value 1 # Demarrage securise
-
-    # Desactiver les notifications toast sur l'ecran de verrouillage
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" -Name RequirePlatformSecurityFeatures -Value 3 #Secure boot and DMA protection
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" -Name HypervisorEnforcedCodeIntegrity -Value 1 #Virtualization-based protection of code integrity enabled with UEFI lockdown
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" -Name LsaCfgFlags -Value 1 #Credential Guard configuration enabled with UEFI Lockdown
+    Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" -Name ConfigureSystemGuardLaunch -Value 1 #Secure boot
+    #Disable toast notifications on lock screen
     reg add "HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications" /f
     Set-ItemProperty -Path "Registry::HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications" -Name NoToastApplicationNotificationOnLockScreen -Value 1
-
-    # Un mot de passe protege l’ecran de veille
-    reg add "HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Control Panel\Desktop" /f
-    Set-ItemProperty -Path "Registry::HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Control Panel\Desktop" -Name ScreenSaverIsSecure -Value 1
 }
 
 function MicrosoftOfficeTweaks{
@@ -1117,31 +900,26 @@ function GoogleChromeTweaks {
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome\URLBlacklist" /v "1" /t REG_SZ /d "javascript://*" /f
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Update" /v "AutoUpdateCheckPeriodMinutes" /t REG_DWORD /d "1613168640" /f
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome\Recommended" /v "SafeBrowsingProtectionLevel" /t REG_DWORD /d "2" /f
-    # Active l'isolation pour chaque sites
+    #Enables isolation for each site
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v SitePerProcess /d "1" /t REG_DWORD /f >NUL 2>&1
-    # Desactive l'envoie de raport apres un crash
+    #Disable sending report after crash
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v MetricsReportingEnabled /d "0" /t REG_DWORD /f >NUL 2>&1
-    # Desactive les plugins trop vieux
+    #Disable old plugins
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome" /v AllowOutdatedPlugins /d "0" /t REG_DWORD /f >NUL 2>&1
-
-    # Agrandissement de la taille des logs dans Windows Event
+    #Enlarging the size of logs in Windows Event
     wevtutil sl Security /ms:1024000
     wevtutil sl Application /ms:1024000
     wevtutil sl System /ms:1024000
     wevtutil sl "Windows Powershell" /ms:1024000
     wevtutil sl "Microsoft-Windows-PowerShell/Operational" /ms:1024000
-
-    # Enregistre les donnees des lignes de commandes dans le registre (eventid 4688)
+    #Saves command line data to the registry
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Audit" /v ProcessCreationIncludeCmdLine_Enabled /t REG_DWORD /d 1 /f
-
-    # Active les parametres avance
+    #Enable advanced settings
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa" /v SCENoApplyLegacyAuditPolicy /t REG_DWORD /d 1 /f
-
-    # Active la connection au PowerShell
+    #Enable connection to PowerShell
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ModuleLogging" /v EnableModuleLogging /t REG_DWORD /d 1 /f
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" /v EnableScriptBlockLogging /t REG_DWORD /d 1 /f
-
-    # Active les details des logs
+    #Enable log details
     Auditpol /set /subcategory:"Security Group Management" /success:enable /failure:enable
     Auditpol /set /subcategory:"Process Creation" /success:enable /failure:enable
     Auditpol /set /subcategory:"Logoff" /success:enable /failure:disable
@@ -1154,67 +932,53 @@ function GoogleChromeTweaks {
     Auditpol /set /subcategory:"Security State Change" /success:enable /failure:enable
     Auditpol /set /subcategory:"Security System Extension" /success:enable /failure:enable
     Auditpol /set /subcategory:"System Integrity" /success:enable /failure:enable
-
-    # Applique des limitations a Windows Analytics si active
+    #Applies limitations to Windows Analytics
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v LimitEnhancedDiagnosticDataWindowsAnalytics /t REG_DWORD /d 1 /f
-
-    # Applique la telemetrie de Windows uniquement en mode securite
+    #Applies Windows telemetry only in safe mode
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v MaxTelemetryAllowed /t REG_DWORD /d 1 /f
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Diagnostics\DiagTrack" /v ShowedToastAtLevel /t REG_DWORD /d 1 /f
-
-    # Desactiver ma localisation des donnees
+    #Turn off my location data
     reg add "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore" /v Location /t REG_SZ /d Deny /f
-
-    # Empecher le menue demarrer de fournir des informations d'internet et d'utilisiser la geolocalisation
+    #Prevent the start menu from providing internet information and using geolocation
     reg add "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Search" /v BingSearchEnabled /t REG_DWORD /d 0 /f
     reg add "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Search" /v AllowSearchToUseLocation /t REG_DWORD /d 0 /f
     reg add "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\Search" /v CortanaConsent /t REG_DWORD /d 0 /f
-
-    # Desactiver la publication de l'activite de l'utilisateur
+    #Disable publication of user activity
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" /v PublishUserActivities /t REG_DWORD /d 1 /f
-
-    # Desactiver la syncronisation au cloud
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\SettingSync" /v DisableSettingSync /t REG_DWORD /d 2 /f
-
-    # Desactiver les pubs a ID
+    #Disable ads with ID
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" /v DisabledByGroupPolicy /t REG_DWORD /d 1 /f
-
-    # Desactiver Windows GameDVR
+    #Disable Windows GameDVR
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\GameDVR" /v AllowGameDVR /t REG_DWORD /d 0 /f
-
-    # Desactiver l'experience Microsoft consumer pour empecher les notifications et sugestion d'applications a installer
+    #Disable Microsoft Consumer Experience to prevent notifications and suggestions of apps to install
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v DisableWindowsConsumerFeatures /t REG_DWORD /d 1 /f
     reg add "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SystemPaneSuggestionsEnabled /t REG_DWORD /d 0 /f
     reg add "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SilentInstalledAppsEnabled /t REG_DWORD /d 0 /f
     reg add "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v PreInstalledAppsEnabled /t REG_DWORD /d 0 /f
     reg add "HKEY_USERS\.DEFAULT\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v OemPreInstalledAppsEnabled /t REG_DWORD /d 0 /f
-
-    # Desactiver l'acces des sites web a la liste des langages
+    #Disable websites access to the language list
     reg add "HKEY_USERS\Control Panel\International\User Profile" /v HttpAcceptLanguageOptOut /t REG_DWORD /d 1 /f
-
-    # Interdire les notifications sur l'ecran de verouillage
+    #Ban notifications on lock screen
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications" /v NoToastApplicationNotificationOnLockScreen /t REG_DWORD /d 1 /f
-
-    # Activation de l'anti-usurpation pour la reconnaissance faciale
+    #Enabling Anti-Spoofing for Face Recognition
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Biometrics\FacialFeatures" /v EnhancedAntiSpoofing /t REG_DWORD /d 1 /f
-    # Desactivation des autres camera quand l'ecran est ferme
+    #Disable other cameras when screen is closed
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Personalization" /v NoLockScreenCamera /t REG_DWORD /d 1 /f
-    # Empeche les applications Windows de reconnaissance vocale quand l'ecran est ferme
+    #Prevents Windows applications from recognizing speech when the screen is closed
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy" /v LetAppsActivateWithVoiceAboveLock /t REG_DWORD /d 2 /f
 }
 
 function FirewallTweaks {
     NetSh Advfirewall set allprofiles state on
-    # Activation de la connection au Firewall
+    #Enabling Firewall Connection
     netsh advfirewall set currentprofile logging filename %systemroot%\system32\LogFiles\Firewall\pfirewall.log
     netsh advfirewall set currentprofile logging maxfilesize 4096
     netsh advfirewall set currentprofile logging droppedconnections enable
-    # Bloque toute arrive de connections au profile publique
+    #Blocks all connections to the public profile
     netsh advfirewall set publicprofile firewallpolicy blockinboundalways,allowoutbound
-    # Activation de la protection de reseau Windows Defender Network Protection
+    #Enabling Windows Defender Network Protection
     powershell.exe Set-MpPreference -EnableNetworkProtection Enabled
-    # Bloque les connections quand les programmes ne sont pas actifs
+    #Blocks connections when programs are not active
     netsh advfirewall firewall add rule name="Block appvlp.exe netconns" program="C:\Program Files (x86)\Microsoft Office\root\client\AppVLP.exe" protocol=tcp dir=out enable=yes action=block profile=any
     netsh advfirewall firewall add rule name="Block calc.exe netconns" program="%systemroot%\system32\calc.exe" protocol=tcp dir=out enable=yes action=block profile=any
     netsh advfirewall firewall add rule name="Block certutil.exe netconns" program="%systemroot%\system32\certutil.exe" protocol=tcp dir=out enable=yes action=block profile=any
@@ -1297,14 +1061,14 @@ function FirewallTweaks {
 }
 
 ##############################################################################################################
-# Nettoyage du systeme
+#System cleaning
 ##############################################################################################################
-Write-Host "Le nettoyage du disque commence..." -ForegroundColor Yellow
+Write-Host "The system cleanup begins..." -ForegroundColor Yellow
 
 lodctr /r
 
 Start-Process cleanmgr.exe /sagerun:1 -Wait
-Write-Host "Le system a ete nettoye avec succes !" -ForegroundColor Green
+Write-Host "The system has been cleaned up successfully!" -ForegroundColor Green
 
 WindowsTweaks
 WindowsTweaks_Services
@@ -1312,8 +1076,6 @@ WindowsTweaks_Registry
 WindowsTweaks_Tasks
 WindowsTweaks_Features
 WindowsTweaks_Index
-SophiaScript
-ooShutup
 WindowsCleanup
 Runtime
 ApplicationDisabling
@@ -1343,7 +1105,7 @@ foreach ($path in $paths) {
         Get-ChildItem -Path $path -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse
     } 
     else {
-        Write-Host "Le chemin $path n'existe pas" -ForegroundColor Red
+        Write-Host "The path $path does not exist" -ForegroundColor Red
     }
 }
 
@@ -1354,9 +1116,9 @@ Dism.exe /Online /Cleanup-Image /StartComponentCleanup /NoRestart
 Clear-BCCache -ErrorAction SilentlyContinue
 
 function Reboot{
-    Write-Host "Le system a ete optimise avec succes et vas redemarer dans 20 secondes!" -ForegroundColor Green
+    Write-Host "The system has been successfully optimized and will reboot in 20 seconds!" -ForegroundColor Green
     Start-Sleep 20
     Restart-Computer
 }
 
-Reboot #rebbot le systeme
+Reboot
