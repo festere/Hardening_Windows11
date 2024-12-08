@@ -3,7 +3,7 @@ This License is also composed by the terms of use and Copyright
 </p>
 <br>
 <p>
-By using any Novarex application(s) and/or sevice(s) you are exercising the Licensed Rights (defined below), accept and agree to be bound by the terms and conditions of this License, This License may be interpreted as a contract, You are granted the Licensed Rights in consideration of Your acceptance of these terms and conditions, and the Licensor grants You such rights in consideration of benefits the Licensor receives from making the Licensed Material available under these terms and conditions.
+By using any Woxder application(s) and/or sevice(s) you are exercising the Licensed Rights (defined below), accept and agree to be bound by the terms and conditions of this License, This License may be interpreted as a contract, You are granted the Licensed Rights in consideration of Your acceptance of these terms and conditions, and the Licensor grants You such rights in consideration of benefits the Licensor receives from making the Licensed Material available under these terms and conditions.
 <br>
 <br>
 If you do not agree with any part of these documents, you must not use any of our application(s) and/or sevice(s) If you do as it could result in legal action being taken against the individual or entity in question.
@@ -13,10 +13,10 @@ We also do not grant anyone to see any of part our code(s), database and access 
 <br>
 <br>
 <p>
-Copyright (c) 2023, Novarex, All rights reserved.
+Copyright (c) 2025, Woxder, All rights reserved.
 <br>
 <br>
-<ins>Licensor:</ins> The owner of the copyrighted works, Novarex.
+<ins>Licensor:</ins> The owner of the copyrighted works, Woxder.
 <br>
 <ins>Licensee:</ins> The user of the copyrighted work who obtained the application in a legal way on the official website of NAME or from an approved partener.
 <br>

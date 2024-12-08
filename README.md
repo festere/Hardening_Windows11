@@ -17,7 +17,9 @@
 <br>
 
 # <a name="Disclaimer">Disclaimer:</a>
-<span style="color:red">Before using any of our application(s) and/or sevice(s), please ensure that you have read and understood our license, terms of use (in the license), and copyright policy (in the license). By using our application(s) and/or sevice(s), you agree to comply with all applicable laws and regulations, and to be bound by our license, terms of use, and copyright policy. If you do not agree with any part of these documents, you must not use our app or services. Please note that these free tools are provided as-is and without warranty of any kind, meaning Hower and any other potential contributors are not responsible for the actions of any end users. Also our license, terms of use, and copyright policy are subject to change without notice, and it is your responsibility to periodically review these documents for any updates or changes.</span>
+<span style="color:red">Before using any of our applications and/or sevices, please ensure that you have read and understood our license, terms of use (icluded in the license), and copyright policy (icluded in the license).
+By using our applications and/or sevices, you agree to comply with all applicable laws and regulations, and to be bound by our license, terms of use, and copyright policy. If you do not agree with any part of this document, you must not use our applications or services. Please note that these tools are provided as-is and without warranty of any kind, meaning Woxder and any other potential contributors are not responsible for the actions of any end users.
+Our license, terms of use, and copyright policy are subject to change without notice, and it is your responsibility to periodically review these documents for any updates or changes.</span>
 
 <br>
 <br>
